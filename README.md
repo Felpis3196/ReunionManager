@@ -1,12 +1,12 @@
-# 🧠 Smart Meeting Manager
+# Smart Meeting Manager
 
 Sistema de Gestão de Reuniões Inteligente (Smart Meeting Manager) - Uma plataforma web que organiza, otimiza e extrai valor real das reuniões, usando IA para transformar informações dispersas em pautas objetivas, resumos acionáveis e tarefas atribuídas automaticamente.
 
-## 🎯 Visão Geral
+## Visão Geral
 
 O Smart Meeting Manager não é apenas um agendador de reuniões. Ele reduz reuniões desnecessárias e garante a execução das decisões tomadas, transformando reuniões em ações concretas.
 
-## 🏗️ Arquitetura
+## Arquitetura
 
 ### Backend (.NET 8.0)
 - **Arquitetura**: Clean Architecture / Hexagonal
@@ -23,7 +23,7 @@ O Smart Meeting Manager não é apenas um agendador de reuniões. Ele reduz reun
 - **Formulários**: React Hook Form + Zod
 - **HTTP Client**: Axios
 
-## 🚀 Funcionalidades
+## Funcionalidades
 
 ### 1. Gestão de Reuniões
 - Criação manual ou automática via calendário
@@ -56,14 +56,14 @@ O Smart Meeting Manager não é apenas um agendador de reuniões. Ele reduz reun
 - Reuniões com maior impacto
 - Alertas de reuniões improdutivas
 
-## 📋 Pré-requisitos
+## Pré-requisitos
 
 - .NET 8.0 SDK
 - Node.js 18+ e npm/yarn
 - PostgreSQL 14+
 - (Opcional) Docker e Docker Compose
 
-## 🔧 Configuração e Instalação
+## Configuração e Instalação
 
 ### Backend
 
@@ -124,7 +124,7 @@ yarn dev
 
 O frontend estará disponível em `http://localhost:3000`.
 
-## 📁 Estrutura do Projeto
+## Estrutura do Projeto
 
 ```
 .
@@ -143,27 +143,7 @@ O frontend estará disponível em `http://localhost:3000`.
 │       └── lib/                               # Utilitários
 └── README.md
 ```
-
-## 🧪 Testes
-
-### Backend
-```bash
-# Executar testes unitários
-dotnet test
-
-# Executar testes de integração
-dotnet test --filter Category=Integration
-```
-
-### Frontend
-```bash
-# Executar testes
-npm test
-# ou
-yarn test
-```
-
-## 🔐 Segurança
+## Segurança
 
 - Autenticação JWT + OAuth (Google/Microsoft)
 - Controle de acesso por organização/equipe
@@ -171,25 +151,3 @@ yarn test
 - Logs de auditoria
 - LGPD-friendly (opt-in de gravação)
 
-## 📈 Próximos Passos
-
-- [ ] Implementar autenticação completa
-- [ ] Integração com Google Calendar / Outlook
-- [ ] Integração com Gmail / Microsoft Graph
-- [ ] Implementar processamento de IA real (OpenAI/Azure OpenAI)
-- [ ] Adicionar testes unitários e de integração
-- [ ] Implementar jobs assíncronos (RabbitMQ/Kafka)
-- [ ] Dashboard de produtividade
-- [ ] Notificações em tempo real
-
-## 📝 Licença
-
-Este projeto está sob a licença MIT.
-
-## 👥 Contribuindo
-
-Contribuições são bem-vindas! Sinta-se à vontade para abrir issues e pull requests.
-
----
-
-Desenvolvido com ❤️ para tornar reuniões mais produtivas e acionáveis.
