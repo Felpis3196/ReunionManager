@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "SmartMeetingManager.Infrastructure": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      }
+    }
+  }
+}
