@@ -124,7 +124,7 @@ yarn dev
 
 O frontend estará disponível em `http://localhost:3000`.
 
-## 📁 Estrutura do Projeto
+## Estrutura do Projeto
 
 ```
 .
@@ -143,26 +143,6 @@ O frontend estará disponível em `http://localhost:3000`.
 │       └── lib/                               # Utilitários
 └── README.md
 ```
-
-## Testes
-
-### Backend
-```bash
-# Executar testes unitários
-dotnet test
-
-# Executar testes de integração
-dotnet test --filter Category=Integration
-```
-
-### Frontend
-```bash
-# Executar testes
-npm test
-# ou
-yarn test
-```
-
 ## Segurança
 
 - Autenticação JWT + OAuth (Google/Microsoft)
@@ -171,25 +151,3 @@ yarn test
 - Logs de auditoria
 - LGPD-friendly (opt-in de gravação)
 
-## Próximos Passos
-
-- [ ] Implementar autenticação completa
-- [ ] Integração com Google Calendar / Outlook
-- [ ] Integração com Gmail / Microsoft Graph
-- [ ] Implementar processamento de IA real (OpenAI/Azure OpenAI)
-- [ ] Adicionar testes unitários e de integração
-- [ ] Implementar jobs assíncronos (RabbitMQ/Kafka)
-- [ ] Dashboard de produtividade
-- [ ] Notificações em tempo real
-
-## Licença
-
-Este projeto está sob a licença MIT.
-
-## Contribuindo
-
-Contribuições são bem-vindas! Sinta-se à vontade para abrir issues e pull requests.
-
----
-
-Desenvolvido para tornar reuniões mais produtivas e acionáveis.
