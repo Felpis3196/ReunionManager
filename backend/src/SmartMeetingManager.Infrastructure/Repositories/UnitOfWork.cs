@@ -11,6 +11,7 @@ public class UnitOfWork : IUnitOfWork
     private IOrganizationRepository? _organizations;
     private IProjectRepository? _projects;
     private ITaskRepository? _tasks;
+    private ITranscriptRepository? _transcripts;
     private IIntegrationRepository? _integrations;
     private Microsoft.EntityFrameworkCore.Storage.IDbContextTransaction? _transaction;
 
@@ -24,6 +25,7 @@ public class UnitOfWork : IUnitOfWork
     public IOrganizationRepository Organizations => _organizations ??= new OrganizationRepository(_context);
     public IProjectRepository Projects => _projects ??= new ProjectRepository(_context);
     public ITaskRepository Tasks => _tasks ??= new TaskRepository(_context);
+    public ITranscriptRepository Transcripts => _transcripts ??= new TranscriptRepository(_context);
     public IIntegrationRepository Integrations => _integrations ??= new IntegrationRepository(_context);
 
     public async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)

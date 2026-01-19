@@ -4,7 +4,7 @@ services:
   # PostgreSQL Database
   postgres:
     image: postgres:15-alpine
-    container_name: smm-postgres
+    container_name: smm-postgres-dev
     environment:
       POSTGRES_DB: SmartMeetingManager
       POSTGRES_USER: postgres
@@ -12,65 +12,69 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - postgres_data_dev:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 10s
       timeout: 5s
       retries: 5
     networks:
-      - smm-network
+      - smm-network-dev
 
-  # Backend API
+  # Backend API (development mode with hot reload)
   backend:
     build:
       context: ./backend
-      dockerfile: Dockerfile
-    container_name: smm-backend
+      dockerfile: Dockerfile.dev
+    container_name: smm-backend-dev
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ConnectionStrings__DefaultConnection=Host=postgres;Database=SmartMeetingManager;Username=postgres;Password=postgres
       - ASPNETCORE_URLS=http://+:8080
+      - DOTNET_USE_POLLING_FILE_WATCHER=true
     ports:
       - "5000:8080"
       - "5001:8081"
     depends_on:
       postgres:
         condition: service_healthy
+    volumes:
+      - ./backend/src:/src
+      - backend_nuget:/root/.nuget
     networks:
-      - smm-network
+      - smm-network-dev
     restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/api/health || exit 1"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
+    command: dotnet watch run --project src/SmartMeetingManager.API/SmartMeetingManager.API.csproj --urls http://+:8080
 
-  # Frontend Next.js
+  # Frontend Next.js (development mode with hot reload)
   frontend:
     build:
       context: ./frontend
-      dockerfile: Dockerfile
-    container_name: smm-frontend
+      dockerfile: Dockerfile.dev
+    container_name: smm-frontend-dev
     environment:
-      - NODE_ENV=production
+      - NODE_ENV=development
       - NEXT_PUBLIC_API_URL=http://localhost:5000
+      - WATCHPACK_POLLING=true
     ports:
       - "3000:3000"
     depends_on:
-      backend:
-        condition: service_healthy
+      - backend
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+      - /app/.next
     networks:
-      - smm-network
+      - smm-network-dev
     restart: unless-stopped
-    # Note: NEXT_PUBLIC_API_URL deve apontar para localhost:5000 porque
-    # o navegador do usuário acessa o backend através do host, não do container
+    command: npm run dev
 
 volumes:
-  postgres_data:
+  postgres_data_dev:
+    driver: local
+  backend_nuget:
     driver: local
 
 networks:
-  smm-network:
+  smm-network-dev:
     driver: bridge

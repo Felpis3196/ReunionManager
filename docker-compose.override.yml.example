@@ -1,0 +1,16 @@
+# Exemplo de arquivo docker-compose.override.yml
+# Copie este arquivo para docker-compose.override.yml e ajuste conforme necessário
+# Este arquivo é ignorado pelo git e permite sobrescrever configurações locais
+
+version: '3.8'
+
+services:
+  backend:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      # Adicione outras variáveis de ambiente aqui
+
+  frontend:
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:5000
+      # Adicione outras variáveis de ambiente aqui

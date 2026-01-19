@@ -1,4 +1,5 @@
 using SmartMeetingManager.Application.DTOs;
+using SmartMeetingManager.Application.Mappings;
 using SmartMeetingManager.Domain.Interfaces;
 
 namespace SmartMeetingManager.Application.UseCases.Meetings;
@@ -34,6 +35,7 @@ public class CreateMeetingCommand
         await _unitOfWork.Meetings.AddAsync(meeting, cancellationToken);
 
         // Add participants
+        var participants = new List<Domain.Entities.MeetingParticipant>();
         foreach (var participantId in dto.ParticipantIds)
         {
             var participant = new Domain.Entities.MeetingParticipant
@@ -44,27 +46,19 @@ public class CreateMeetingCommand
                 Status = Domain.Entities.ParticipantStatus.Invited,
                 InvitedAt = DateTime.UtcNow
             };
-            // Note: In real implementation, add to repository
+            participants.Add(participant);
+            meeting.Participants.Add(participant);
         }
 
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-        // Map to DTO (simplified)
-        return new MeetingDto
-        {
-            Id = meeting.Id,
-            OrganizationId = meeting.OrganizationId,
-            ProjectId = meeting.ProjectId,
-            OrganizerId = meeting.OrganizerId,
-            Title = meeting.Title,
-            Description = meeting.Description,
-            Type = meeting.Type,
-            Status = meeting.Status,
-            ScheduledAt = meeting.ScheduledAt,
-            Duration = meeting.Duration,
-            Location = meeting.Location,
-            MeetingUrl = meeting.MeetingUrl,
-            CreatedAt = meeting.CreatedAt
-        };
+        // Load meeting with details for mapping
+        var createdMeeting = await _unitOfWork.Meetings.GetWithDetailsAsync(meeting.Id, cancellationToken);
+        
+        if (createdMeeting == null)
+            throw new InvalidOperationException("Failed to retrieve created meeting");
+
+        // Map to DTO using mapper
+        return Mappings.MeetingMapper.ToDto(createdMeeting);
     }
 }

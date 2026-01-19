@@ -27,9 +27,14 @@ public class ApplicationDbContext : DbContext
 
         // Configure entities
         ConfigureUser(modelBuilder);
+        ConfigureOrganization(modelBuilder);
+        ConfigureProject(modelBuilder);
         ConfigureMeeting(modelBuilder);
+        ConfigureAgendaItem(modelBuilder);
+        ConfigureDecision(modelBuilder);
         ConfigureTask(modelBuilder);
-        // Add more configurations as needed
+        ConfigureTranscript(modelBuilder);
+        ConfigureIntegration(modelBuilder);
     }
 
     private void ConfigureUser(ModelBuilder modelBuilder)
@@ -62,6 +67,55 @@ public class ApplicationDbContext : DbContext
         });
     }
 
+    private void ConfigureOrganization(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<Organization>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Name).IsRequired().HasMaxLength(255);
+        });
+
+        modelBuilder.Entity<OrganizationMember>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.HasOne(e => e.User).WithMany(u => u.OrganizationMembers).HasForeignKey(e => e.UserId);
+            entity.HasOne(e => e.Organization).WithMany(o => o.Members).HasForeignKey(e => e.OrganizationId);
+            entity.HasIndex(e => new { e.UserId, e.OrganizationId }).IsUnique();
+        });
+    }
+
+    private void ConfigureProject(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<Project>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Name).IsRequired().HasMaxLength(255);
+            entity.HasOne(e => e.Organization).WithMany(o => o.Projects).HasForeignKey(e => e.OrganizationId);
+        });
+    }
+
+    private void ConfigureAgendaItem(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<AgendaItem>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Title).IsRequired().HasMaxLength(500);
+            entity.HasOne(e => e.Meeting).WithMany(m => m.AgendaItems).HasForeignKey(e => e.MeetingId);
+        });
+    }
+
+    private void ConfigureDecision(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<Decision>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Title).IsRequired().HasMaxLength(500);
+            entity.Property(e => e.Description).IsRequired().HasMaxLength(2000);
+            entity.HasOne(e => e.Meeting).WithMany(m => m.Decisions).HasForeignKey(e => e.MeetingId);
+            entity.HasOne(e => e.MadeBy).WithMany().HasForeignKey(e => e.MadeById).OnDelete(DeleteBehavior.SetNull);
+        });
+    }
+
     private void ConfigureTask(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Task>(entity =>
@@ -71,6 +125,31 @@ public class ApplicationDbContext : DbContext
             entity.HasOne(e => e.Meeting).WithMany(m => m.Tasks).HasForeignKey(e => e.MeetingId);
             entity.HasOne(e => e.Project).WithMany(p => p.Tasks).HasForeignKey(e => e.ProjectId);
             entity.HasOne(e => e.AssignedTo).WithMany(u => u.AssignedTasks).HasForeignKey(e => e.AssignedToId);
+        });
+    }
+
+    private void ConfigureTranscript(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<Transcript>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Content).IsRequired();
+            entity.HasOne(e => e.Meeting).WithMany(m => m.Transcripts).HasForeignKey(e => e.MeetingId);
+        });
+    }
+
+    private void ConfigureIntegration(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<Integration>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.HasOne(e => e.Organization).WithMany().HasForeignKey(e => e.OrganizationId);
+            // Store settings as JSON
+            entity.Property(e => e.Settings)
+                .HasConversion(
+                    v => v == null ? null : System.Text.Json.JsonSerializer.Serialize(v),
+                    v => v == null ? null : System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, string>>(v)
+                );
         });
     }
 }

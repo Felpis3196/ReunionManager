@@ -1,0 +1,35 @@
+# Git
+.git
+.gitignore
+
+# Documentation
+*.md
+
+# IDE
+.vs/
+.idea/
+*.swp
+*.swo
+
+# Build outputs
+bin/
+obj/
+**/bin/
+**/obj/
+
+# Environment
+.env
+.env.local
+appsettings.Production.json
+appsettings.Local.json
+
+# Logs
+logs/
+*.log
+
+# Scripts
+scripts/
+
+# Docker
+Dockerfile
+.dockerignore

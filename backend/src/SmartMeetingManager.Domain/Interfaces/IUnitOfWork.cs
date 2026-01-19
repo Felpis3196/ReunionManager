@@ -7,6 +7,7 @@ public interface IUnitOfWork : IDisposable
     IOrganizationRepository Organizations { get; }
     IProjectRepository Projects { get; }
     ITaskRepository Tasks { get; }
+    ITranscriptRepository Transcripts { get; }
     IIntegrationRepository Integrations { get; }
     
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);

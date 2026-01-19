@@ -1,0 +1,29 @@
+FROM mcr.microsoft.com/dotnet/sdk:8.0
+
+WORKDIR /src
+
+# Install EF Core tools
+RUN dotnet tool install --global dotnet-ef --version 8.0.0
+ENV PATH="$PATH:/root/.dotnet/tools"
+
+# Copy solution file
+COPY SmartMeetingManager.sln ./
+
+# Copy project files for restore
+COPY src/SmartMeetingManager.API/SmartMeetingManager.API.csproj src/SmartMeetingManager.API/
+COPY src/SmartMeetingManager.Application/SmartMeetingManager.Application.csproj src/SmartMeetingManager.Application/
+COPY src/SmartMeetingManager.Domain/SmartMeetingManager.Domain.csproj src/SmartMeetingManager.Domain/
+COPY src/SmartMeetingManager.Infrastructure/SmartMeetingManager.Infrastructure.csproj src/SmartMeetingManager.Infrastructure/
+
+# Restore dependencies
+RUN dotnet restore SmartMeetingManager.sln
+
+# Copy source code
+COPY . .
+
+# Expose ports
+EXPOSE 8080
+EXPOSE 8081
+
+# Default command (can be overridden in docker-compose)
+CMD ["dotnet", "watch", "run", "--project", "src/SmartMeetingManager.API/SmartMeetingManager.API.csproj", "--urls", "http://+:8080"]

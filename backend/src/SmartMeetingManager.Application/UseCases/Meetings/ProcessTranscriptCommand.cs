@@ -29,7 +29,7 @@ public class ProcessTranscriptCommand
             ProcessedAt = DateTime.UtcNow,
             CreatedAt = DateTime.UtcNow
         };
-        // TODO: Add to transcript repository
+        await _unitOfWork.Transcripts.AddAsync(transcript, cancellationToken);
 
         // Generate summary
         var agendaItems = meeting.AgendaItems.Select(a => $"{a.Order}. {a.Title}").ToList();
