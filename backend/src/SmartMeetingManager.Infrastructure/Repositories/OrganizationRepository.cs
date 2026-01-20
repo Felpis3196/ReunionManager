@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using SmartMeetingManager.Domain.Entities;
 using SmartMeetingManager.Domain.Interfaces;
 using SmartMeetingManager.Infrastructure.Data;
+using Task = System.Threading.Tasks.Task;
 
 namespace SmartMeetingManager.Infrastructure.Repositories;
 
@@ -46,13 +47,13 @@ public class OrganizationRepository : IOrganizationRepository
     {
         entity.UpdatedAt = DateTime.UtcNow;
         _context.Organizations.Update(entity);
-        return Task.CompletedTask;
+        return System.Threading.Tasks.Task.CompletedTask;
     }
 
     public Task DeleteAsync(Organization entity, CancellationToken cancellationToken = default)
     {
         _context.Organizations.Remove(entity);
-        return Task.CompletedTask;
+        return System.Threading.Tasks.Task.CompletedTask;
     }
 
     public async Task<bool> ExistsAsync(System.Linq.Expressions.Expression<Func<Organization, bool>> predicate, CancellationToken cancellationToken = default)

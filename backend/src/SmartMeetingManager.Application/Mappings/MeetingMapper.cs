@@ -1,5 +1,6 @@
 using SmartMeetingManager.Application.DTOs;
 using SmartMeetingManager.Domain.Entities;
+using TaskEntity = SmartMeetingManager.Domain.Entities.Task;
 
 namespace SmartMeetingManager.Application.Mappings;
 
@@ -77,7 +78,7 @@ public static class MeetingMapper
         };
     }
 
-    private static TaskDto ToTaskDto(Task task)
+    private static TaskDto ToTaskDto(TaskEntity task)
     {
         return new TaskDto
         {

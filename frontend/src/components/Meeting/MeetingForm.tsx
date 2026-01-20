@@ -82,15 +82,17 @@ export default function MeetingForm({ onSubmit, isLoading }: MeetingFormProps) {
 
         <div>
           <label htmlFor="duration" className="block text-sm font-medium text-gray-700">
-            Duração *
+            Duração (horas:minutos) *
           </label>
           <input
             {...register('duration')}
             type="time"
             step="900"
             className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
+            placeholder="01:00"
           />
           {errors.duration && <p className="mt-1 text-sm text-red-600">{errors.duration.message}</p>}
+          <p className="mt-1 text-xs text-gray-500">Formato: HH:MM (ex: 01:30 para 1 hora e 30 minutos)</p>
         </div>
       </div>
 

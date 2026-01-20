@@ -1,6 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
-import { Meeting } from '@/types/meeting';
+import { Meeting, MeetingStatus } from '@/types/meeting';
 import { formatDate, formatDuration } from '@/lib/utils';
 import { cn } from '@/lib/utils';
 
@@ -9,11 +9,11 @@ interface MeetingCardProps {
 }
 
 export default function MeetingCard({ meeting }: MeetingCardProps) {
-  const statusColors = {
-    Scheduled: 'bg-blue-100 text-blue-800',
-    InProgress: 'bg-green-100 text-green-800',
-    Completed: 'bg-gray-100 text-gray-800',
-    Cancelled: 'bg-red-100 text-red-800',
+  const statusColors: Record<MeetingStatus, string> = {
+    [MeetingStatus.Scheduled]: 'bg-blue-100 text-blue-800',
+    [MeetingStatus.InProgress]: 'bg-green-100 text-green-800',
+    [MeetingStatus.Completed]: 'bg-gray-100 text-gray-800',
+    [MeetingStatus.Cancelled]: 'bg-red-100 text-red-800',
   };
 
   return (

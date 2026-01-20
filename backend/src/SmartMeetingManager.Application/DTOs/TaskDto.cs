@@ -1,4 +1,5 @@
 using SmartMeetingManager.Domain.Entities;
+using TaskStatusEntity = SmartMeetingManager.Domain.Entities.TaskStatus;
 
 namespace SmartMeetingManager.Application.DTOs;
 
@@ -11,7 +12,7 @@ public record TaskDto
     public string AssignedToName { get; init; } = string.Empty;
     public string Title { get; init; } = string.Empty;
     public string? Description { get; init; }
-    public TaskStatus Status { get; init; }
+    public TaskStatusEntity Status { get; init; }
     public TaskPriority Priority { get; init; }
     public DateTime? DueDate { get; init; }
     public DateTime? CompletedAt { get; init; }

@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Logging;
 using SmartMeetingManager.Domain.Interfaces;
 
 namespace SmartMeetingManager.Infrastructure.Services;

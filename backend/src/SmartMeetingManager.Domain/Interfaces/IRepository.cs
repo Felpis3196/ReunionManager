@@ -1,4 +1,5 @@
 using System.Linq.Expressions;
+using Task = System.Threading.Tasks.Task;
 
 namespace SmartMeetingManager.Domain.Interfaces;
 

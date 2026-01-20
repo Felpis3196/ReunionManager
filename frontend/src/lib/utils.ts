@@ -17,15 +17,29 @@ export function formatDate(date: string | Date): string {
 }
 
 export function formatDuration(duration: string): string {
-  // Parse ISO 8601 duration or TimeSpan format
-  const match = duration.match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/);
-  if (match) {
-    const hours = parseInt(match[1] || '0');
-    const minutes = parseInt(match[2] || '0');
+  // Parse ISO 8601 duration (PT1H30M) or TimeSpan format (01:30:00) or HH:mm format
+  // Try ISO 8601 format first
+  const isoMatch = duration.match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/);
+  if (isoMatch) {
+    const hours = parseInt(isoMatch[1] || '0');
+    const minutes = parseInt(isoMatch[2] || '0');
     if (hours > 0) {
       return `${hours}h ${minutes}m`;
     }
     return `${minutes}m`;
   }
+  
+  // Try TimeSpan format (HH:mm:ss or HH:mm)
+  const timeSpanMatch = duration.match(/(\d{1,2}):(\d{2})(?::(\d{2}))?/);
+  if (timeSpanMatch) {
+    const hours = parseInt(timeSpanMatch[1] || '0');
+    const minutes = parseInt(timeSpanMatch[2] || '0');
+    if (hours > 0) {
+      return `${hours}h ${minutes}m`;
+    }
+    return `${minutes}m`;
+  }
+  
+  // Return as-is if format is not recognized
   return duration;
 }

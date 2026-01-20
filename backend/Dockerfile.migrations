@@ -1,0 +1,28 @@
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS migrations
+WORKDIR /src
+
+# Install PostgreSQL client for health checks
+RUN apt-get update && apt-get install -y postgresql-client && rm -rf /var/lib/apt/lists/*
+
+# Copy solution and project files
+COPY SmartMeetingManager.sln ./
+COPY src/SmartMeetingManager.API/SmartMeetingManager.API.csproj src/SmartMeetingManager.API/
+COPY src/SmartMeetingManager.Application/SmartMeetingManager.Application.csproj src/SmartMeetingManager.Application/
+COPY src/SmartMeetingManager.Domain/SmartMeetingManager.Domain.csproj src/SmartMeetingManager.Domain/
+COPY src/SmartMeetingManager.Infrastructure/SmartMeetingManager.Infrastructure.csproj src/SmartMeetingManager.Infrastructure/
+COPY src/SmartMeetingManager.Migrations/SmartMeetingManager.Migrations.csproj src/SmartMeetingManager.Migrations/
+
+# Restore dependencies
+RUN dotnet restore
+
+# Copy everything else
+COPY src/ ./src/
+
+# Restore again after copying source files to ensure all packages are available
+RUN dotnet restore
+
+# Build the migrations project
+RUN dotnet build src/SmartMeetingManager.Migrations/SmartMeetingManager.Migrations.csproj -c Release -o /app/migrations
+
+# Set working directory to root
+WORKDIR /src

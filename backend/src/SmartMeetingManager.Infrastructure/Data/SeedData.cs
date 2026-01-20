@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using SmartMeetingManager.Domain.Entities;
+using Task = System.Threading.Tasks.Task;
 
 namespace SmartMeetingManager.Infrastructure.Data;
 
@@ -7,9 +8,19 @@ public static class SeedData
 {
     public static async Task SeedAsync(ApplicationDbContext context)
     {
-        // Skip seeding if data already exists
-        if (await context.Users.AnyAsync())
-            return;
+        try
+        {
+            // Skip seeding if data already exists
+            if (await context.Users.AnyAsync())
+                return;
+        }
+        catch (Exception ex)
+        {
+            // If tables don't exist, throw to be caught by caller
+            // This indicates migrations weren't applied correctly
+            throw new InvalidOperationException(
+                "Cannot seed database: tables do not exist. Ensure migrations are applied first.", ex);
+        }
 
         // Use fixed GUIDs for test data (for consistency)
         var organizationId = Guid.Parse("11111111-1111-1111-1111-111111111111");

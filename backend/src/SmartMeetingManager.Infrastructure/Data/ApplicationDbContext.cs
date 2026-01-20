@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using SmartMeetingManager.Domain.Entities;
+using TaskEntity = SmartMeetingManager.Domain.Entities.Task;
 
 namespace SmartMeetingManager.Infrastructure.Data;
 
@@ -17,7 +18,7 @@ public class ApplicationDbContext : DbContext
     public DbSet<MeetingParticipant> MeetingParticipants { get; set; }
     public DbSet<AgendaItem> AgendaItems { get; set; }
     public DbSet<Decision> Decisions { get; set; }
-    public DbSet<Task> Tasks { get; set; }
+    public DbSet<TaskEntity> Tasks { get; set; }
     public DbSet<Transcript> Transcripts { get; set; }
     public DbSet<Integration> Integrations { get; set; }
 
@@ -118,7 +119,7 @@ public class ApplicationDbContext : DbContext
 
     private void ConfigureTask(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<Task>(entity =>
+        modelBuilder.Entity<TaskEntity>(entity =>
         {
             entity.HasKey(e => e.Id);
             entity.Property(e => e.Title).IsRequired().HasMaxLength(500);
@@ -146,10 +147,8 @@ public class ApplicationDbContext : DbContext
             entity.HasOne(e => e.Organization).WithMany().HasForeignKey(e => e.OrganizationId);
             // Store settings as JSON
             entity.Property(e => e.Settings)
-                .HasConversion(
-                    v => v == null ? null : System.Text.Json.JsonSerializer.Serialize(v),
-                    v => v == null ? null : System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, string>>(v)
-                );
+                .HasConversion(new JsonDictionaryConverter())
+                .HasColumnType("text");
         });
     }
 }

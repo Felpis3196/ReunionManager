@@ -18,6 +18,7 @@ RUN dotnet build -c Release -o /app/build
 
 # Publish
 FROM build AS publish
+WORKDIR /src/src/SmartMeetingManager.API
 RUN dotnet publish -c Release -o /app/publish /p:UseAppHost=false
 
 # Runtime image
@@ -26,12 +27,8 @@ WORKDIR /app
 EXPOSE 8080
 EXPOSE 8081
 
-# Install PostgreSQL client for health checks
-RUN apt-get update && apt-get install -y postgresql-client && rm -rf /var/lib/apt/lists/*
-
-# Install EF Core tools for migrations
-RUN dotnet tool install --global dotnet-ef --version 8.0.0
-ENV PATH="$PATH:/root/.dotnet/tools"
+# Install PostgreSQL client and wget for health checks
+RUN apt-get update && apt-get install -y postgresql-client wget && rm -rf /var/lib/apt/lists/*
 
 COPY --from=publish /app/publish .
 

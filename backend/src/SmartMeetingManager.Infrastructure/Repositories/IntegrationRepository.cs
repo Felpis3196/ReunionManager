@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using SmartMeetingManager.Domain.Entities;
 using SmartMeetingManager.Domain.Interfaces;
 using SmartMeetingManager.Infrastructure.Data;
+using Task = System.Threading.Tasks.Task;
 
 namespace SmartMeetingManager.Infrastructure.Repositories;
 
@@ -52,13 +53,13 @@ public class IntegrationRepository : IIntegrationRepository
     {
         entity.UpdatedAt = DateTime.UtcNow;
         _context.Integrations.Update(entity);
-        return Task.CompletedTask;
+        return System.Threading.Tasks.Task.CompletedTask;
     }
 
     public Task DeleteAsync(Integration entity, CancellationToken cancellationToken = default)
     {
         _context.Integrations.Remove(entity);
-        return Task.CompletedTask;
+        return System.Threading.Tasks.Task.CompletedTask;
     }
 
     public async Task<bool> ExistsAsync(System.Linq.Expressions.Expression<Func<Integration, bool>> predicate, CancellationToken cancellationToken = default)

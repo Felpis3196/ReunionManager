@@ -35,3 +35,12 @@ yarn-error.log*
 # Docker
 Dockerfile
 .dockerignore
+
+# Test files
+**/*.test.ts
+**/*.test.tsx
+**/*.spec.ts
+**/*.spec.tsx
+
+# Coverage
+coverage/

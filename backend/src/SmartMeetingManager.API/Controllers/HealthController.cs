@@ -6,7 +6,7 @@ namespace SmartMeetingManager.API.Controllers;
 /// Controller para verificação de saúde da API
 /// </summary>
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/health")]
 [Produces("application/json")]
 public class HealthController : ControllerBase
 {

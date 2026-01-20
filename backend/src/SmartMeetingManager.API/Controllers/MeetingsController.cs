@@ -207,10 +207,8 @@ public class MeetingsController : ControllerBase
     /// <summary>
     /// Request para processar transcrição
     /// </summary>
+    /// <param name="Transcript">Conteúdo da transcrição da reunião</param>
     public record ProcessTranscriptRequest(
-        /// <summary>
-        /// Conteúdo da transcrição da reunião
-        /// </summary>
         [Required] string Transcript
     );
 }
