@@ -38,12 +38,17 @@ public static class SeedData
         };
         await context.Organizations.AddAsync(organization);
 
-        // Create test users
+        // Create test users (password: Test@123)
+        var passwordHash = BCrypt.Net.BCrypt.HashPassword("Test@123", workFactor: 10);
         var user1 = new User
         {
             Id = userId1,
             Email = "admin@test.com",
             Name = "Admin User",
+            PasswordHash = passwordHash,
+            IsActive = true,
+            IsSiteAdmin = true,
+            EmailConfirmed = true,
             CreatedAt = DateTime.UtcNow
         };
 
@@ -52,6 +57,9 @@ public static class SeedData
             Id = userId2,
             Email = "user@test.com",
             Name = "Regular User",
+            PasswordHash = passwordHash,
+            IsActive = true,
+            EmailConfirmed = true,
             CreatedAt = DateTime.UtcNow
         };
 

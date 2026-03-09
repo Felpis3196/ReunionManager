@@ -1,19 +1,51 @@
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.Extensions.Logging;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using SmartMeetingManager.Application.Interfaces;
 using SmartMeetingManager.Domain.Interfaces;
 using SmartMeetingManager.Infrastructure.Data;
 using SmartMeetingManager.Infrastructure.Repositories;
 using SmartMeetingManager.Infrastructure.Services;
 using SmartMeetingManager.Application.UseCases.Meetings;
+using SmartMeetingManager.API.Hubs;
 using System.Reflection;
 using System.Linq;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase;
+        options.JsonSerializerOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter());
+    })
+    .ConfigureApiBehaviorOptions(options =>
+    {
+        // Disable automatic 400 responses to handle validation manually
+        options.SuppressModelStateInvalidFilter = false;
+        options.InvalidModelStateResponseFactory = context =>
+        {
+            var errors = context.ModelState.Values
+                .SelectMany(v => v.Errors)
+                .Select(e => e.ErrorMessage)
+                .ToList();
+
+            return new BadRequestObjectResult(new
+            {
+                error = "Dados inválidos",
+                message = string.Join("; ", errors),
+                details = errors,
+                fields = context.ModelState.Keys.ToList()
+            });
+        };
+    });
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
@@ -78,12 +110,71 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
 {
     options.UseNpgsql(connectionString, npgsqlOptions =>
-        npgsqlOptions.MigrationsAssembly("SmartMeetingManager.Infrastructure"));
+    {
+        npgsqlOptions.MigrationsAssembly("SmartMeetingManager.Infrastructure");
+    });
 });
+
+// JWT Authentication
+var jwtKey = builder.Configuration["Jwt:Key"] ?? "SmartMeetingManager_DefaultSecretKey_ChangeInProduction_12345678";
+var jwtIssuer = builder.Configuration["Jwt:Issuer"] ?? "SmartMeetingManager";
+var jwtAudience = builder.Configuration["Jwt:Audience"] ?? "SmartMeetingManagerApp";
+
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
+{
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+        ValidIssuer = jwtIssuer,
+        ValidAudience = jwtAudience,
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey)),
+        ClockSkew = TimeSpan.Zero
+    };
+
+    options.Events = new JwtBearerEvents
+    {
+        OnAuthenticationFailed = context =>
+        {
+            if (context.Exception.GetType() == typeof(SecurityTokenExpiredException))
+            {
+                context.Response.Headers["Token-Expired"] = "true";
+            }
+            return Task.CompletedTask;
+        },
+        OnMessageReceived = context =>
+        {
+            var path = context.Request.Path;
+            if (path.StartsWithSegments("/hubs/teamchat", StringComparison.OrdinalIgnoreCase))
+            {
+                var token = context.Request.Query["access_token"].FirstOrDefault();
+                if (!string.IsNullOrEmpty(token))
+                    context.Token = token;
+            }
+            return Task.CompletedTask;
+        }
+    };
+});
+
+builder.Services.AddAuthorization();
 
 // Dependency Injection
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IAiService, AiService>();
+builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IOrganizationPermissionService, OrganizationPermissionService>();
+builder.Services.AddScoped<IOrganizationRoleService, OrganizationRoleService>();
+builder.Services.AddScoped<ITeamChatService, TeamChatService>();
+
+builder.Services.AddSignalR();
 
 // Use Cases
 builder.Services.AddScoped<CreateMeetingCommand>();
@@ -127,20 +218,41 @@ if (app.Environment.IsDevelopment())
                 return;
             }
             
-            // Verify that tables exist
+            // Apply pending migrations in Development (so you don't need psql/dotnet-ef)
+            if (app.Environment.IsDevelopment())
+            {
+                var pending = await dbContext.Database.GetPendingMigrationsAsync();
+                if (pending.Any())
+                {
+                    logger.LogInformation("Applying pending migrations: {Migrations}", string.Join(", ", pending));
+                    await dbContext.Database.MigrateAsync();
+                }
+            }
+            
+            // Verify that tables exist - if not, use EnsureCreated as fallback
             logger.LogInformation("Verifying database schema...");
+            bool tablesExist = false;
             try
             {
-                var tableCheck = await dbContext.Database.ExecuteSqlRawAsync(
-                    "SELECT COUNT(*) FROM information_schema.tables WHERE table_name = 'Users'");
-                logger.LogInformation($"Users table exists check: {tableCheck}");
+                var result = await dbContext.Database.ExecuteSqlRawAsync(
+                    "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'Users'");
+                tablesExist = result > 0;
+                logger.LogInformation($"Users table exists: {tablesExist}");
             }
             catch (Exception ex)
             {
                 logger.LogWarning($"Could not verify Users table: {ex.Message}");
             }
             
-            // Seed data (migrations should already be applied by migrations container)
+            // If tables don't exist, create them using EnsureCreated
+            if (!tablesExist)
+            {
+                logger.LogWarning("Tables do not exist. Creating database schema using EnsureCreated...");
+                await dbContext.Database.EnsureCreatedAsync();
+                logger.LogInformation("Database schema created successfully.");
+            }
+            
+            // Seed data
             logger.LogInformation("Seeding database...");
             await SmartMeetingManager.Infrastructure.Data.SeedData.SeedAsync(dbContext);
             logger.LogInformation("Database seeded successfully.");
@@ -176,7 +288,9 @@ app.UseSwaggerUI(c =>
 
 app.UseHttpsRedirection();
 app.UseCors("AllowFrontend");
+app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
+app.MapHub<TeamChatHub>("/hubs/teamchat");
 
 app.Run();

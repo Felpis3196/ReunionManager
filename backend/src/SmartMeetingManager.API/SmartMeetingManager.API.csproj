@@ -19,6 +19,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\SmartMeetingManager.Application\SmartMeetingManager.Application.csproj" />
+    <ProjectReference Include="..\SmartMeetingManager.Domain\SmartMeetingManager.Domain.csproj" />
     <ProjectReference Include="..\SmartMeetingManager.Infrastructure\SmartMeetingManager.Infrastructure.csproj" />
   </ItemGroup>
 

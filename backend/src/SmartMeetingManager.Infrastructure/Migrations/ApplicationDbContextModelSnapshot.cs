@@ -262,6 +262,13 @@ namespace SmartMeetingManager.Infrastructure.Migrations
                     b.Property<string>("Description")
                         .HasColumnType("text");
 
+                    b.Property<string>("InviteCode")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("LogoUrl")
+                        .HasColumnType("text");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(255)
@@ -275,11 +282,43 @@ namespace SmartMeetingManager.Infrastructure.Migrations
                     b.ToTable("Organizations");
                 });
 
+            modelBuilder.Entity("SmartMeetingManager.Domain.Entities.OrganizationCustomRole", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("OrganizationId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("PermissionsJson")
+                        .IsRequired()
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OrganizationId");
+
+                    b.ToTable("OrganizationCustomRoles");
+                });
+
             modelBuilder.Entity("SmartMeetingManager.Domain.Entities.OrganizationMember", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
+
+                    b.Property<Guid?>("CustomRoleId")
+                        .HasColumnType("uuid");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
 
                     b.Property<DateTime>("JoinedAt")
                         .HasColumnType("timestamp with time zone");
@@ -294,6 +333,8 @@ namespace SmartMeetingManager.Infrastructure.Migrations
                         .HasColumnType("uuid");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("CustomRoleId");
 
                     b.HasIndex("OrganizationId");
 
@@ -437,10 +478,42 @@ namespace SmartMeetingManager.Infrastructure.Migrations
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)");
 
+                    b.Property<bool>("EmailConfirmed")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("EmailConfirmationToken")
+                        .HasColumnType("text");
+
+                    b.Property<int>("FailedLoginAttempts")
+                        .HasColumnType("integer");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsSiteAdmin")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTime?>("LastLoginAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime?>("LockoutEndAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)");
+
+                    b.Property<string>("PasswordHash")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<string>("PasswordResetToken")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("PasswordResetTokenExpiry")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
@@ -451,6 +524,193 @@ namespace SmartMeetingManager.Infrastructure.Migrations
                         .IsUnique();
 
                     b.ToTable("Users");
+                });
+
+            modelBuilder.Entity("SmartMeetingManager.Domain.Entities.RefreshToken", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedByIp")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("ExpiresAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("ReasonRevoked")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ReplacedByToken")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("RevokedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("RevokedByIp")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Token")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Token")
+                        .IsUnique();
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("RefreshTokens");
+                });
+
+            modelBuilder.Entity("SmartMeetingManager.Domain.Entities.Invite", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("AcceptedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.Property<DateTime>("ExpiresAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("InvitedById")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("InviteCode")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("InvitePasswordHash")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<Guid?>("CustomRoleId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("OrganizationId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Role")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CustomRoleId");
+
+                    b.HasIndex("InviteCode")
+                        .IsUnique();
+
+                    b.HasIndex("InvitedById");
+
+                    b.HasIndex("OrganizationId");
+
+                    b.ToTable("Invites");
+                });
+
+            modelBuilder.Entity("SmartMeetingManager.Domain.Entities.MeetingFile", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("Category")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("ContentType")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("text");
+
+                    b.Property<string>("FileName")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.Property<long>("FileSize")
+                        .HasColumnType("bigint");
+
+                    b.Property<Guid>("MeetingId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("OriginalFileName")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<string>("StoragePath")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
+                    b.Property<Guid>("UploadedById")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("MeetingId");
+
+                    b.HasIndex("UploadedById");
+
+                    b.ToTable("MeetingFiles");
+                });
+
+            modelBuilder.Entity("SmartMeetingManager.Domain.Entities.TeamMessage", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("OrganizationId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Text")
+                        .IsRequired()
+                        .HasMaxLength(4000)
+                        .HasColumnType("character varying(4000)");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OrganizationId", "CreatedAt");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("TeamMessages");
                 });
 
             modelBuilder.Entity("SmartMeetingManager.Domain.Entities.AgendaItem", b =>
@@ -491,6 +751,81 @@ namespace SmartMeetingManager.Infrastructure.Migrations
                         .IsRequired();
 
                     b.Navigation("Organization");
+                });
+
+            modelBuilder.Entity("SmartMeetingManager.Domain.Entities.RefreshToken", b =>
+                {
+                    b.HasOne("SmartMeetingManager.Domain.Entities.User", "User")
+                        .WithMany("RefreshTokens")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("SmartMeetingManager.Domain.Entities.Invite", b =>
+                {
+                    b.HasOne("SmartMeetingManager.Domain.Entities.OrganizationCustomRole", "CustomRole")
+                        .WithMany()
+                        .HasForeignKey("CustomRoleId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("SmartMeetingManager.Domain.Entities.Organization", "Organization")
+                        .WithMany("Invites")
+                        .HasForeignKey("OrganizationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("SmartMeetingManager.Domain.Entities.User", "InvitedBy")
+                        .WithMany()
+                        .HasForeignKey("InvitedById")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("CustomRole");
+
+                    b.Navigation("InvitedBy");
+
+                    b.Navigation("Organization");
+                });
+
+            modelBuilder.Entity("SmartMeetingManager.Domain.Entities.MeetingFile", b =>
+                {
+                    b.HasOne("SmartMeetingManager.Domain.Entities.Meeting", "Meeting")
+                        .WithMany("Files")
+                        .HasForeignKey("MeetingId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("SmartMeetingManager.Domain.Entities.User", "UploadedBy")
+                        .WithMany()
+                        .HasForeignKey("UploadedById")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Meeting");
+
+                    b.Navigation("UploadedBy");
+                });
+
+            modelBuilder.Entity("SmartMeetingManager.Domain.Entities.TeamMessage", b =>
+                {
+                    b.HasOne("SmartMeetingManager.Domain.Entities.Organization", "Organization")
+                        .WithMany()
+                        .HasForeignKey("OrganizationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("SmartMeetingManager.Domain.Entities.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Organization");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("SmartMeetingManager.Domain.Entities.Meeting", b =>
@@ -537,6 +872,17 @@ namespace SmartMeetingManager.Infrastructure.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("SmartMeetingManager.Domain.Entities.OrganizationCustomRole", b =>
+                {
+                    b.HasOne("SmartMeetingManager.Domain.Entities.Organization", "Organization")
+                        .WithMany("CustomRoles")
+                        .HasForeignKey("OrganizationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Organization");
+                });
+
             modelBuilder.Entity("SmartMeetingManager.Domain.Entities.OrganizationMember", b =>
                 {
                     b.HasOne("SmartMeetingManager.Domain.Entities.Organization", "Organization")
@@ -545,11 +891,18 @@ namespace SmartMeetingManager.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("SmartMeetingManager.Domain.Entities.OrganizationCustomRole", "CustomRole")
+                        .WithMany()
+                        .HasForeignKey("CustomRoleId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
                     b.HasOne("SmartMeetingManager.Domain.Entities.User", "User")
                         .WithMany("OrganizationMembers")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("CustomRole");
 
                     b.Navigation("Organization");
 
@@ -609,6 +962,8 @@ namespace SmartMeetingManager.Infrastructure.Migrations
 
                     b.Navigation("Decisions");
 
+                    b.Navigation("Files");
+
                     b.Navigation("Participants");
 
                     b.Navigation("Tasks");
@@ -618,6 +973,10 @@ namespace SmartMeetingManager.Infrastructure.Migrations
 
             modelBuilder.Entity("SmartMeetingManager.Domain.Entities.Organization", b =>
                 {
+                    b.Navigation("CustomRoles");
+
+                    b.Navigation("Invites");
+
                     b.Navigation("Meetings");
 
                     b.Navigation("Members");
@@ -641,6 +1000,8 @@ namespace SmartMeetingManager.Infrastructure.Migrations
                     b.Navigation("MeetingsAsOrganizer");
 
                     b.Navigation("OrganizationMembers");
+
+                    b.Navigation("RefreshTokens");
                 });
 #pragma warning restore 612, 618
         }

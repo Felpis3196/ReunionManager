@@ -49,4 +49,5 @@ public class Meeting
     public virtual ICollection<Decision> Decisions { get; set; } = new List<Decision>();
     public virtual ICollection<Task> Tasks { get; set; } = new List<Task>();
     public virtual ICollection<Transcript> Transcripts { get; set; } = new List<Transcript>();
+    public virtual ICollection<MeetingFile> Files { get; set; } = new List<MeetingFile>();
 }

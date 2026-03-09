@@ -5,4 +5,5 @@ namespace SmartMeetingManager.Domain.Interfaces;
 public interface IOrganizationRepository : IRepository<Organization>
 {
     Task<IEnumerable<Organization>> GetByUserIdAsync(Guid userId, CancellationToken cancellationToken = default);
+    Task<bool> IsUserMemberAsync(Guid userId, Guid organizationId, CancellationToken cancellationToken = default);
 }

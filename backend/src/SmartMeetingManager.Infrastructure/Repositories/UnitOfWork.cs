@@ -13,6 +13,7 @@ public class UnitOfWork : IUnitOfWork
     private ITaskRepository? _tasks;
     private ITranscriptRepository? _transcripts;
     private IIntegrationRepository? _integrations;
+    private IFileRepository? _files;
     private Microsoft.EntityFrameworkCore.Storage.IDbContextTransaction? _transaction;
 
     public UnitOfWork(ApplicationDbContext context)
@@ -27,6 +28,7 @@ public class UnitOfWork : IUnitOfWork
     public ITaskRepository Tasks => _tasks ??= new TaskRepository(_context);
     public ITranscriptRepository Transcripts => _transcripts ??= new TranscriptRepository(_context);
     public IIntegrationRepository Integrations => _integrations ??= new IntegrationRepository(_context);
+    public IFileRepository Files => _files ??= new FileRepository(_context);
 
     public async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {

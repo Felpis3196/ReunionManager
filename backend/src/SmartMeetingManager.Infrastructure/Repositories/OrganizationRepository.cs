@@ -23,8 +23,14 @@ public class OrganizationRepository : IOrganizationRepository
     public async Task<IEnumerable<Organization>> GetByUserIdAsync(Guid userId, CancellationToken cancellationToken = default)
     {
         return await _context.Organizations
-            .Where(o => o.Members.Any(m => m.UserId == userId))
+            .Where(o => o.Members.Any(m => m.UserId == userId && m.IsActive))
             .ToListAsync(cancellationToken);
+    }
+
+    public async Task<bool> IsUserMemberAsync(Guid userId, Guid organizationId, CancellationToken cancellationToken = default)
+    {
+        return await _context.Set<OrganizationMember>()
+            .AnyAsync(m => m.UserId == userId && m.OrganizationId == organizationId && m.IsActive, cancellationToken);
     }
 
     public async Task<IEnumerable<Organization>> GetAllAsync(CancellationToken cancellationToken = default)

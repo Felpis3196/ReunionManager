@@ -15,6 +15,46 @@ public class CreateMeetingCommand
 
     public async Task<MeetingDto> ExecuteAsync(CreateMeetingDto dto, Guid organizerId, CancellationToken cancellationToken = default)
     {
+        // Parse and validate ScheduledAt (ISO 8601 format)
+        if (!DateTime.TryParse(dto.ScheduledAt, out var scheduledAtParsed))
+        {
+            throw new ArgumentException("Data e hora inválidas. Use formato ISO 8601 (ex: 2024-01-20T14:30:00)");
+        }
+
+        // Convert to UTC for PostgreSQL (PostgreSQL only accepts UTC timestamps)
+        DateTime scheduledAt;
+        if (scheduledAtParsed.Kind == DateTimeKind.Unspecified)
+        {
+            // Assume local time and convert to UTC
+            scheduledAt = DateTime.SpecifyKind(scheduledAtParsed, DateTimeKind.Local).ToUniversalTime();
+        }
+        else if (scheduledAtParsed.Kind == DateTimeKind.Local)
+        {
+            scheduledAt = scheduledAtParsed.ToUniversalTime();
+        }
+        else
+        {
+            // Already UTC
+            scheduledAt = scheduledAtParsed;
+        }
+
+        // Parse and validate Duration (format: HH:mm or just TimeSpan string)
+        if (!TimeSpan.TryParse(dto.Duration, out var duration))
+        {
+            throw new ArgumentException("Duração inválida. Use formato HH:mm (ex: 01:30)");
+        }
+
+        if (duration.TotalMinutes < 1)
+        {
+            throw new ArgumentException("Duração deve ser de pelo menos 1 minuto");
+        }
+
+        // Validate ScheduledAt is in the future (compare in UTC)
+        if (scheduledAt < DateTime.UtcNow.AddMinutes(-5)) // 5 minutes tolerance for clock skew
+        {
+            throw new ArgumentException("Data e hora devem ser no futuro");
+        }
+
         var meeting = new Domain.Entities.Meeting
         {
             Id = Guid.NewGuid(),
@@ -25,8 +65,8 @@ public class CreateMeetingCommand
             Description = dto.Description,
             Type = dto.Type,
             Status = Domain.Entities.MeetingStatus.Scheduled,
-            ScheduledAt = dto.ScheduledAt,
-            Duration = dto.Duration,
+            ScheduledAt = scheduledAt,
+            Duration = duration,
             Location = dto.Location,
             MeetingUrl = dto.MeetingUrl,
             CreatedAt = DateTime.UtcNow
