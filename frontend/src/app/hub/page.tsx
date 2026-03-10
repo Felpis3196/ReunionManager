@@ -18,7 +18,7 @@ export default function HubPage() {
 
   return (
     <Layout>
-      <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white py-8 px-4 sm:px-6 lg:px-8">
+      <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white dark:from-slate-900 dark:to-slate-800 py-8 px-4 sm:px-6 lg:px-8">
         <div className="max-w-4xl mx-auto">
           <h1 className="page-title">Central</h1>
           <p className="text-muted mt-1">Acesso rapido as areas do sistema</p>

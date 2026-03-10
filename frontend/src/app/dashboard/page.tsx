@@ -117,7 +117,7 @@ export default function DashboardPage() {
   if (isLoading) {
     return (
       <Layout>
-        <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white py-8 px-4 sm:px-6 lg:px-8">
+        <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white dark:from-slate-900 dark:to-slate-800 py-8 px-4 sm:px-6 lg:px-8">
           <div className="max-w-7xl mx-auto">
             <div className="mb-8">
               <div className="h-8 w-48 skeleton mb-2"></div>
@@ -145,7 +145,7 @@ export default function DashboardPage() {
   if (error || !stats) {
     return (
       <Layout>
-        <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white py-8 px-4">
+        <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white dark:from-slate-900 dark:to-slate-800 py-8 px-4">
           <div className="max-w-7xl mx-auto">
             <div className="card border-red-100 bg-red-50 p-8 text-center">
               <div className="w-12 h-12 mx-auto bg-red-100 rounded-xl flex items-center justify-center mb-4">
@@ -175,229 +175,231 @@ export default function DashboardPage() {
 
   return (
     <Layout>
-      <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white py-8 px-4 sm:px-6 lg:px-8">
+      <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white dark:from-slate-900 dark:to-slate-800 py-8 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
-          {/* Header + scope selector */}
-          <div className="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div>
-              <h1 className="page-title">
-                {selectedScope === GENERAL_DASHBOARD_VALUE && isSiteAdmin
-                  ? 'Dashboard geral da plataforma'
-                  : 'Dashboard'}
-              </h1>
-              <p className="text-muted mt-1">
-                {selectedScope === GENERAL_DASHBOARD_VALUE && isSiteAdmin
-                  ? 'Visao consolidada de reunioes e tarefas de todas as organizacoes.'
-                  : `Organizacao: ${
-                      organizations.find((o) => o.id === selectedScope)?.name ?? selectedScope
-                    } (apenas dados desta organizacao)`}
-              </p>
-            </div>
-            {(isSiteAdmin && organizations.length > 0) || (!isSiteAdmin && organizations.length > 1) ? (
-              <div className="flex items-center gap-2">
-                <label htmlFor="dashboard-scope" className="text-sm font-medium text-gray-600 whitespace-nowrap">
-                  Exibir:
-                </label>
-                <select
-                  id="dashboard-scope"
-                  value={selectedScope}
-                  onChange={(e) => setSelectedScope(e.target.value)}
-                  className="rounded-xl border border-gray-200 bg-white px-4 py-2 text-sm text-gray-900 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
-                >
-                  {isSiteAdmin && (
-                    <option value={GENERAL_DASHBOARD_VALUE}>Dashboard geral</option>
-                  )}
-                  {organizations.map((org) => (
-                    <option key={org.id} value={org.id}>
-                      {org.name} {org.role === 'Owner' ? '(dono)' : ''}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            ) : null}
-          </div>
-
-          {/* Stats Cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
-            <StatCard
-              icon={<CalendarIcon />}
-              iconBg="bg-indigo-100 text-indigo-600"
-              label="Total de Reunioes"
-              value={stats.totalMeetings}
-              subtitle={`${stats.meetingsThisMonth} este mes`}
-            />
-            <StatCard
-              icon={<CheckIcon />}
-              iconBg="bg-emerald-100 text-emerald-600"
-              label="Concluidas"
-              value={stats.completedMeetings}
-              subtitle={`${stats.totalMeetingHours}h em reunioes`}
-            />
-            <StatCard
-              icon={<TaskIcon />}
-              iconBg="bg-amber-100 text-amber-600"
-              label="Tarefas Pendentes"
-              value={stats.pendingTasks}
-              subtitle={`${stats.taskCompletionRate}% concluidas`}
-              highlight={stats.pendingTasks > 10}
-            />
-            <StatCard
-              icon={<ClockIcon />}
-              iconBg="bg-violet-100 text-violet-600"
-              label="Duracao Media"
-              value={stats.averageMeetingDuration}
-              subtitle="por reuniao"
-            />
-          </div>
-
-          {/* Main Grid */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Upcoming Meetings */}
-            <div className="lg:col-span-2 card p-6">
-              <div className="flex items-center justify-between mb-5">
-                <h2 className="section-title">Proximas Reunioes</h2>
-                <Link href="/" className="text-sm text-indigo-600 hover:text-indigo-700 font-medium">
-                  Ver todas
-                </Link>
-              </div>
-              {stats.upcomingMeetings.length === 0 ? (
-                <EmptyState icon={<CalendarIcon />} message="Nenhuma reuniao agendada" />
-              ) : (
-                <div className="space-y-3">
-                  {stats.upcomingMeetings.map((meeting, i) => (
-                    <Link
-                      key={meeting.id}
-                      href={`/meetings/${meeting.id}`}
-                      className="flex items-center justify-between p-4 rounded-xl bg-gray-50 hover:bg-gray-100 transition-all duration-200 group"
-                      style={{ animationDelay: `${i * 50}ms` }}
-                    >
-                      <div className="flex items-center gap-4">
-                        <div className="w-10 h-10 rounded-lg bg-indigo-100 flex items-center justify-center text-indigo-600">
-                          <CalendarIcon />
-                        </div>
-                        <div>
-                          <p className="font-medium text-gray-900 group-hover:text-indigo-600 transition-colors">{meeting.title}</p>
-                          <p className="text-sm text-gray-500">{formatDate(meeting.scheduledAt)}</p>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-3">
-                        <span className="badge-primary">{typeLabels[meeting.type] || meeting.type}</span>
-                        <span className="text-sm text-gray-400">{meeting.participantCount} part.</span>
-                      </div>
-                    </Link>
-                  ))}
+          <div className="space-y-8">
+              {/* Header + scope selector */}
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div>
+                  <h1 className="page-title">
+                    {selectedScope === GENERAL_DASHBOARD_VALUE && isSiteAdmin
+                      ? 'Dashboard geral da plataforma'
+                      : 'Dashboard'}
+                  </h1>
+                  <p className="text-muted mt-1">
+                    {selectedScope === GENERAL_DASHBOARD_VALUE && isSiteAdmin
+                      ? 'Visao consolidada de reunioes e tarefas de todas as organizacoes.'
+                      : `Organizacao: ${
+                          organizations.find((o) => o.id === selectedScope)?.name ?? selectedScope
+                        } (apenas dados desta organizacao)`}
+                  </p>
                 </div>
-              )}
-            </div>
-
-            {/* Tasks by Priority */}
-            <div className="card p-6">
-              <div className="flex items-center justify-between mb-5">
-                <h2 className="section-title">Tarefas Pendentes</h2>
-                <Link href="/tasks" className="text-sm text-indigo-600 hover:text-indigo-700 font-medium">
-                  Ver todas
-                </Link>
+                {(isSiteAdmin && organizations.length > 0) || (!isSiteAdmin && organizations.length > 1) ? (
+                  <div className="flex items-center gap-2">
+                    <label htmlFor="dashboard-scope" className="text-sm font-medium text-gray-600 whitespace-nowrap">
+                      Exibir:
+                    </label>
+                    <select
+                      id="dashboard-scope"
+                      value={selectedScope}
+                      onChange={(e) => setSelectedScope(e.target.value)}
+                      className="rounded-xl border border-gray-200 dark:border-slate-600 bg-white dark:bg-slate-800 px-4 py-2 text-sm text-gray-900 dark:text-slate-100 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                    >
+                      {isSiteAdmin && (
+                        <option value={GENERAL_DASHBOARD_VALUE}>Dashboard geral</option>
+                      )}
+                      {organizations.map((org) => (
+                        <option key={org.id} value={org.id}>
+                          {org.name} {org.role === 'Owner' ? '(dono)' : ''}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                ) : null}
               </div>
-              {stats.tasksByPriority.length === 0 ? (
-                <EmptyState icon={<TaskIcon />} message="Sem tarefas pendentes" />
-              ) : (
-                <div className="space-y-4">
-                  {stats.tasksByPriority.map((item) => {
-                    const config = priorityConfig[item.priority] || { label: item.priority, color: 'bg-gray-100 text-gray-700' };
-                    return (
-                      <div key={item.priority} className="flex items-center justify-between">
-                        <span className={`badge ${config.color}`}>{config.label}</span>
-                        <div className="flex items-center gap-3">
-                          <div className="w-24 bg-gray-100 rounded-full h-1.5 overflow-hidden">
+
+              {/* Stats Cards */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+                <StatCard
+                  icon={<CalendarIcon />}
+                  iconBg="bg-indigo-100 text-indigo-600"
+                  label="Total de Reunioes"
+                  value={stats.totalMeetings}
+                  subtitle={`${stats.meetingsThisMonth} este mes`}
+                />
+                <StatCard
+                  icon={<CheckIcon />}
+                  iconBg="bg-emerald-100 text-emerald-600"
+                  label="Concluidas"
+                  value={stats.completedMeetings}
+                  subtitle={`${stats.totalMeetingHours}h em reunioes`}
+                />
+                <StatCard
+                  icon={<TaskIcon />}
+                  iconBg="bg-amber-100 text-amber-600"
+                  label="Tarefas Pendentes"
+                  value={stats.pendingTasks}
+                  subtitle={`${stats.taskCompletionRate}% concluidas`}
+                  highlight={stats.pendingTasks > 10}
+                />
+                <StatCard
+                  icon={<ClockIcon />}
+                  iconBg="bg-violet-100 text-violet-600"
+                  label="Duracao Media"
+                  value={stats.averageMeetingDuration}
+                  subtitle="por reuniao"
+                />
+              </div>
+
+              {/* Main Grid */}
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                {/* Upcoming Meetings */}
+                <div className="lg:col-span-2 card p-6">
+                  <div className="flex items-center justify-between mb-5">
+                    <h2 className="section-title">Proximas Reunioes</h2>
+                    <Link href="/" className="text-sm text-indigo-600 hover:text-indigo-700 font-medium">
+                      Ver todas
+                    </Link>
+                  </div>
+                  {stats.upcomingMeetings.length === 0 ? (
+                    <EmptyState icon={<CalendarIcon />} message="Nenhuma reuniao agendada" />
+                  ) : (
+                    <div className="space-y-3">
+                      {stats.upcomingMeetings.map((meeting, i) => (
+                        <Link
+                          key={meeting.id}
+                          href={`/meetings/${meeting.id}`}
+                          className="flex items-center justify-between p-4 rounded-xl bg-gray-50 dark:bg-slate-700/50 hover:bg-gray-100 dark:hover:bg-slate-700 transition-all duration-200 group"
+                          style={{ animationDelay: `${i * 50}ms` }}
+                        >
+                          <div className="flex items-center gap-4">
+                            <div className="w-10 h-10 rounded-lg bg-indigo-100 flex items-center justify-center text-indigo-600">
+                              <CalendarIcon />
+                            </div>
+                            <div>
+                              <p className="font-medium text-gray-900 group-hover:text-indigo-600 transition-colors">{meeting.title}</p>
+                              <p className="text-sm text-gray-500">{formatDate(meeting.scheduledAt)}</p>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-3">
+                            <span className="badge-primary">{typeLabels[meeting.type] || meeting.type}</span>
+                            <span className="text-sm text-gray-400">{meeting.participantCount} part.</span>
+                          </div>
+                        </Link>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* Tasks by Priority */}
+                <div className="card p-6">
+                  <div className="flex items-center justify-between mb-5">
+                    <h2 className="section-title">Tarefas Pendentes</h2>
+                    <Link href="/tasks" className="text-sm text-indigo-600 hover:text-indigo-700 font-medium">
+                      Ver todas
+                    </Link>
+                  </div>
+                  {stats.tasksByPriority.length === 0 ? (
+                    <EmptyState icon={<TaskIcon />} message="Sem tarefas pendentes" />
+                  ) : (
+                    <div className="space-y-4">
+                      {stats.tasksByPriority.map((item) => {
+                        const config = priorityConfig[item.priority] || { label: item.priority, color: 'bg-gray-100 text-gray-700' };
+                        return (
+                          <div key={item.priority} className="flex items-center justify-between">
+                            <span className={`badge ${config.color}`}>{config.label}</span>
+                            <div className="flex items-center gap-3">
+                              <div className="w-24 bg-gray-100 dark:bg-slate-700 rounded-full h-1.5 overflow-hidden">
+                                <div
+                                  className="h-full bg-indigo-500 rounded-full transition-all duration-500"
+                                  style={{ width: `${Math.min((item.count / stats.totalTasks) * 100, 100)}%` }}
+                                />
+                              </div>
+                              <span className="text-sm font-semibold text-gray-900 w-6 text-right">{item.count}</span>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+
+                {/* Recent Meetings */}
+                <div className="card p-6">
+                  <h2 className="section-title mb-5">Reunioes Recentes</h2>
+                  {stats.recentMeetings.length === 0 ? (
+                    <EmptyState icon={<CheckIcon />} message="Nenhuma reuniao concluida" />
+                  ) : (
+                    <div className="space-y-3">
+                      {stats.recentMeetings.map((meeting) => (
+                        <Link
+                          key={meeting.id}
+                          href={`/meetings/${meeting.id}`}
+                          className="block p-3 rounded-lg hover:bg-gray-50 transition-colors"
+                        >
+                          <p className="font-medium text-gray-900 text-sm truncate">{meeting.title}</p>
+                          <div className="flex items-center gap-3 mt-1 text-xs text-gray-500">
+                            <span>{meeting.duration}</span>
+                            <span className="w-1 h-1 bg-gray-300 rounded-full"></span>
+                            <span>{meeting.decisionCount} decisoes</span>
+                            <span className="w-1 h-1 bg-gray-300 rounded-full"></span>
+                            <span>{meeting.taskCount} tarefas</span>
+                          </div>
+                        </Link>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* Meetings by Type */}
+                <div className="lg:col-span-2 card p-6">
+                  <h2 className="section-title mb-5">Distribuicao por Tipo</h2>
+                  {stats.meetingsByType.length === 0 ? (
+                    <EmptyState icon={<ChartIcon />} message="Sem dados disponiveis" />
+                  ) : (
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                      {stats.meetingsByType.map((item) => (
+                        <div key={item.type} className="p-4 rounded-xl bg-gray-50">
+                          <p className="text-2xl font-bold text-gray-900">{item.count}</p>
+                          <p className="text-sm text-gray-500">{typeLabels[item.type] || item.type}</p>
+                          <div className="mt-2 w-full bg-gray-200 rounded-full h-1">
                             <div
-                              className="h-full bg-indigo-500 rounded-full transition-all duration-500"
-                              style={{ width: `${Math.min((item.count / stats.totalTasks) * 100, 100)}%` }}
+                              className="h-full bg-indigo-500 rounded-full"
+                              style={{ width: `${(item.count / stats.totalMeetings) * 100}%` }}
                             />
                           </div>
-                          <span className="text-sm font-semibold text-gray-900 w-6 text-right">{item.count}</span>
                         </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
-            </div>
-
-            {/* Recent Meetings */}
-            <div className="card p-6">
-              <h2 className="section-title mb-5">Reunioes Recentes</h2>
-              {stats.recentMeetings.length === 0 ? (
-                <EmptyState icon={<CheckIcon />} message="Nenhuma reuniao concluida" />
-              ) : (
-                <div className="space-y-3">
-                  {stats.recentMeetings.map((meeting) => (
-                    <Link
-                      key={meeting.id}
-                      href={`/meetings/${meeting.id}`}
-                      className="block p-3 rounded-lg hover:bg-gray-50 transition-colors"
-                    >
-                      <p className="font-medium text-gray-900 text-sm truncate">{meeting.title}</p>
-                      <div className="flex items-center gap-3 mt-1 text-xs text-gray-500">
-                        <span>{meeting.duration}</span>
-                        <span className="w-1 h-1 bg-gray-300 rounded-full"></span>
-                        <span>{meeting.decisionCount} decisoes</span>
-                        <span className="w-1 h-1 bg-gray-300 rounded-full"></span>
-                        <span>{meeting.taskCount} tarefas</span>
-                      </div>
-                    </Link>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {/* Meetings by Type */}
-            <div className="lg:col-span-2 card p-6">
-              <h2 className="section-title mb-5">Distribuicao por Tipo</h2>
-              {stats.meetingsByType.length === 0 ? (
-                <EmptyState icon={<ChartIcon />} message="Sem dados disponiveis" />
-              ) : (
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-                  {stats.meetingsByType.map((item) => (
-                    <div key={item.type} className="p-4 rounded-xl bg-gray-50">
-                      <p className="text-2xl font-bold text-gray-900">{item.count}</p>
-                      <p className="text-sm text-gray-500">{typeLabels[item.type] || item.type}</p>
-                      <div className="mt-2 w-full bg-gray-200 rounded-full h-1">
-                        <div
-                          className="h-full bg-indigo-500 rounded-full"
-                          style={{ width: `${(item.count / stats.totalMeetings) * 100}%` }}
-                        />
-                      </div>
+                      ))}
                     </div>
-                  ))}
+                  )}
+                </div>
+              </div>
+
+              {/* Activity Chart */}
+              {productivity && productivity.dailyStats.length > 0 && (
+                <div className="card p-6">
+                  <h2 className="section-title mb-5">Atividade - {productivity.period}</h2>
+                  <div className="flex items-end gap-1 h-24">
+                    {productivity.dailyStats.map((day, index) => {
+                      const maxCount = Math.max(...productivity.dailyStats.map(d => d.meetingCount), 1);
+                      const height = Math.max((day.meetingCount / maxCount) * 100, 4);
+                      return (
+                        <div
+                          key={index}
+                          className="flex-1 bg-gradient-to-t from-indigo-500 to-indigo-400 rounded-t hover:from-indigo-600 hover:to-indigo-500 transition-colors cursor-pointer"
+                          style={{ height: `${height}%` }}
+                          title={`${day.date}: ${day.meetingCount} reunioes`}
+                        />
+                      );
+                    })}
+                  </div>
+                  <div className="flex justify-between mt-2 text-xs text-gray-400">
+                    <span>{productivity.dailyStats[0]?.date}</span>
+                    <span>{productivity.dailyStats[productivity.dailyStats.length - 1]?.date}</span>
+                  </div>
                 </div>
               )}
-            </div>
           </div>
-
-          {/* Activity Chart */}
-          {productivity && productivity.dailyStats.length > 0 && (
-            <div className="mt-6 card p-6">
-              <h2 className="section-title mb-5">Atividade - {productivity.period}</h2>
-              <div className="flex items-end gap-1 h-24">
-                {productivity.dailyStats.map((day, index) => {
-                  const maxCount = Math.max(...productivity.dailyStats.map(d => d.meetingCount), 1);
-                  const height = Math.max((day.meetingCount / maxCount) * 100, 4);
-                  return (
-                    <div
-                      key={index}
-                      className="flex-1 bg-gradient-to-t from-indigo-500 to-indigo-400 rounded-t hover:from-indigo-600 hover:to-indigo-500 transition-colors cursor-pointer"
-                      style={{ height: `${height}%` }}
-                      title={`${day.date}: ${day.meetingCount} reunioes`}
-                    />
-                  );
-                })}
-              </div>
-              <div className="flex justify-between mt-2 text-xs text-gray-400">
-                <span>{productivity.dailyStats[0]?.date}</span>
-                <span>{productivity.dailyStats[productivity.dailyStats.length - 1]?.date}</span>
-              </div>
-            </div>
-          )}
         </div>
       </div>
     </Layout>
@@ -431,7 +433,7 @@ function StatCard({ icon, iconBg, label, value, subtitle, highlight }: {
 function EmptyState({ icon, message }: { icon: React.ReactNode; message: string }) {
   return (
     <div className="text-center py-8">
-      <div className="w-12 h-12 mx-auto bg-gray-100 rounded-xl flex items-center justify-center text-gray-400 mb-3">
+      <div className="w-12 h-12 mx-auto bg-gray-100 dark:bg-slate-700 rounded-xl flex items-center justify-center text-gray-400 dark:text-slate-400 mb-3">
         {icon}
       </div>
       <p className="text-sm text-gray-500">{message}</p>

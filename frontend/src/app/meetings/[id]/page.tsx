@@ -257,7 +257,7 @@ export default function MeetingDetailPage() {
   if (isLoading) {
     return (
       <Layout>
-        <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white py-8 px-4">
+        <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white dark:from-slate-900 dark:to-slate-800 py-8 px-4">
           <div className="max-w-5xl mx-auto">
             <div className="h-4 w-20 skeleton mb-4"></div>
             <div className="card p-6">
@@ -277,7 +277,7 @@ export default function MeetingDetailPage() {
   if (error || !meeting) {
     return (
       <Layout>
-        <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white py-8 px-4">
+        <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white dark:from-slate-900 dark:to-slate-800 py-8 px-4">
           <div className="max-w-3xl mx-auto">
             <div className="card border-red-100 bg-red-50 p-8 text-center">
               <div className="w-12 h-12 mx-auto bg-red-100 rounded-xl flex items-center justify-center mb-4">
@@ -296,7 +296,7 @@ export default function MeetingDetailPage() {
 
   return (
     <Layout>
-      <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white py-8 px-4 sm:px-6 lg:px-8">
+      <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white dark:from-slate-900 dark:to-slate-800 py-8 px-4 sm:px-6 lg:px-8">
         <div className="max-w-5xl mx-auto">
           {/* Back */}
           <Link href="/" className="inline-flex items-center text-sm text-gray-500 hover:text-gray-700 mb-4 group">

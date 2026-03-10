@@ -141,7 +141,7 @@ export default function ChatPage() {
 
   return (
     <Layout>
-      <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white py-8 px-4 sm:px-6 lg:px-8">
+      <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white dark:from-slate-900 dark:to-slate-800 py-8 px-4 sm:px-6 lg:px-8">
         <div className="max-w-3xl mx-auto">
           <div className="flex items-center justify-between mb-4">
             <h1 className="page-title">Chat da equipe</h1>

@@ -14,10 +14,10 @@ const statusConfig: Record<string, { label: string; color: string; bg: string }>
 };
 
 const priorityConfig: Record<string, { label: string; color: string; dot: string }> = {
-  Low: { label: 'Baixa', color: 'text-gray-600', dot: 'bg-gray-400' },
-  Medium: { label: 'Media', color: 'text-blue-600', dot: 'bg-blue-500' },
-  High: { label: 'Alta', color: 'text-amber-600', dot: 'bg-amber-500' },
-  Critical: { label: 'Critica', color: 'text-red-600', dot: 'bg-red-500' },
+  Low: { label: 'Baixa', color: 'text-gray-600 dark:text-slate-400', dot: 'bg-gray-400 dark:bg-slate-500' },
+  Medium: { label: 'Media', color: 'text-blue-600 dark:text-blue-400', dot: 'bg-blue-500' },
+  High: { label: 'Alta', color: 'text-amber-600 dark:text-amber-400', dot: 'bg-amber-500' },
+  Critical: { label: 'Critica', color: 'text-red-600 dark:text-red-400', dot: 'bg-red-500' },
 };
 
 export default function TasksPage() {
@@ -97,7 +97,7 @@ export default function TasksPage() {
 
   return (
     <Layout>
-      <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white py-8 px-4 sm:px-6 lg:px-8">
+      <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white dark:from-slate-900 dark:to-slate-800 py-8 px-4 sm:px-6 lg:px-8">
         <div className="max-w-4xl mx-auto">
           {/* Header */}
           <div className="mb-8">
@@ -111,15 +111,15 @@ export default function TasksPage() {
 
           {/* Filters */}
           <div className="mb-6 flex flex-wrap items-center gap-2">
-            <div className="flex items-center bg-gray-100 rounded-lg p-1">
+            <div className="flex items-center bg-gray-100 dark:bg-slate-700 rounded-lg p-1">
               {filterOptions.map((opt) => (
                 <button
                   key={opt.id}
                   onClick={() => setFilter(opt.id as typeof filter)}
                   className={`px-4 py-2 rounded-md text-sm font-medium transition-all duration-200 ${
                     filter === opt.id
-                      ? 'bg-white text-gray-900 shadow-sm'
-                      : 'text-gray-600 hover:text-gray-900'
+                      ? 'bg-white dark:bg-slate-600 text-gray-900 dark:text-white shadow-sm'
+                      : 'text-gray-600 dark:text-slate-300 hover:text-gray-900 dark:hover:text-white'
                   }`}
                 >
                   {opt.label}
@@ -127,11 +127,11 @@ export default function TasksPage() {
               ))}
             </div>
             {user?.canViewAllTasks && (
-              <div className="flex items-center bg-gray-100 rounded-lg p-1">
+              <div className="flex items-center bg-gray-100 dark:bg-slate-700 rounded-lg p-1">
                 <button
                   onClick={() => setScope('mine')}
                   className={`px-3 py-2 rounded-md text-sm font-medium transition-all ${
-                    scope === 'mine' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600 hover:text-gray-900'
+                    scope === 'mine' ? 'bg-white dark:bg-slate-600 text-gray-900 dark:text-white shadow-sm' : 'text-gray-600 dark:text-slate-300 hover:text-gray-900 dark:hover:text-white'
                   }`}
                 >
                   Minhas tarefas
@@ -139,29 +139,29 @@ export default function TasksPage() {
                 <button
                   onClick={() => setScope('all')}
                   className={`px-3 py-2 rounded-md text-sm font-medium transition-all ${
-                    scope === 'all' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600 hover:text-gray-900'
+                    scope === 'all' ? 'bg-white dark:bg-slate-600 text-gray-900 dark:text-white shadow-sm' : 'text-gray-600 dark:text-slate-300 hover:text-gray-900 dark:hover:text-white'
                   }`}
                 >
                   Todas da equipe
                 </button>
               </div>
             )}
-            <span className="text-sm text-gray-400 ml-auto">{tasks.length} tarefas</span>
+            <span className="text-sm text-gray-400 dark:text-slate-400 ml-auto">{tasks.length} tarefas</span>
           </div>
 
           {/* Error */}
           {error && (
-            <div className="mb-6 card border-red-100 bg-red-50 p-4 animate-fadeIn">
+            <div className="mb-6 card border-red-100 dark:border-red-900/50 bg-red-50 dark:bg-red-900/20 p-4 animate-fadeIn">
               <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-lg bg-red-100 flex items-center justify-center">
-                  <svg className="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="w-9 h-9 rounded-lg bg-red-100 dark:bg-red-900/50 flex items-center justify-center">
+                  <svg className="w-5 h-5 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                   </svg>
                 </div>
                 <div className="flex-1">
-                  <p className="text-sm text-red-800">{error}</p>
+                  <p className="text-sm text-red-800 dark:text-red-200">{error}</p>
                 </div>
-                <button onClick={loadTasks} className="text-sm font-medium text-red-700 hover:text-red-800">
+                <button onClick={loadTasks} className="text-sm font-medium text-red-700 dark:text-red-300 hover:text-red-800 dark:hover:text-red-200">
                   Tentar novamente
                 </button>
               </div>
@@ -170,7 +170,7 @@ export default function TasksPage() {
 
           {/* Loading */}
           {isLoading && (
-            <div className="card divide-y divide-gray-100">
+            <div className="card divide-y divide-gray-100 dark:divide-slate-700">
               {[1, 2, 3, 4, 5].map((i) => (
                 <div key={i} className="p-4 flex items-center gap-4">
                   <div className="w-5 h-5 skeleton rounded"></div>
@@ -186,15 +186,15 @@ export default function TasksPage() {
           {/* Empty State */}
           {!isLoading && !error && tasks.length === 0 && (
             <div className="card p-12 text-center animate-fadeIn">
-              <div className="w-16 h-16 mx-auto bg-gray-100 rounded-2xl flex items-center justify-center mb-4">
-                <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="w-16 h-16 mx-auto bg-gray-100 dark:bg-slate-700 rounded-2xl flex items-center justify-center mb-4">
+                <svg className="w-8 h-8 text-gray-400 dark:text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
                 </svg>
               </div>
-              <h3 className="text-lg font-semibold text-gray-900">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-slate-100">
                 {filter === 'completed' ? 'Nenhuma tarefa concluida' : 'Nenhuma tarefa pendente'}
               </h3>
-              <p className="mt-2 text-sm text-gray-500">As tarefas sao criadas a partir das reunioes</p>
+              <p className="mt-2 text-sm text-gray-500 dark:text-slate-400">As tarefas sao criadas a partir das reunioes</p>
               <Link href="/" className="btn-primary mt-6 inline-flex">
                 Ver reunioes
               </Link>
@@ -203,7 +203,7 @@ export default function TasksPage() {
 
           {/* Tasks List */}
           {!isLoading && !error && tasks.length > 0 && (
-            <div className="card divide-y divide-gray-100 animate-fadeIn">
+            <div className="card divide-y divide-gray-100 dark:divide-slate-700 animate-fadeIn">
               {tasks.map((task, index) => {
                 const status = statusConfig[task.status] || statusConfig.Pending;
                 const priority = priorityConfig[task.priority] || priorityConfig.Medium;
@@ -212,7 +212,7 @@ export default function TasksPage() {
                 return (
                   <div
                     key={task.id}
-                    className={`p-4 hover:bg-gray-50 transition-colors ${overdue ? 'bg-red-50/50' : ''}`}
+                    className={`p-4 hover:bg-gray-50 dark:hover:bg-slate-700/50 transition-colors ${overdue ? 'bg-red-50/50 dark:bg-red-900/20' : ''}`}
                     style={{ animationDelay: `${index * 30}ms` }}
                   >
                     <div className="flex items-start gap-4 group">
@@ -224,8 +224,8 @@ export default function TasksPage() {
                           task.status === 'Completed'
                             ? 'bg-emerald-500 border-emerald-500'
                             : canComplete(task)
-                              ? 'border-gray-300 hover:border-emerald-500 hover:bg-emerald-50'
-                              : 'border-gray-200 bg-gray-50 cursor-not-allowed opacity-60'
+                              ? 'border-gray-300 dark:border-slate-500 hover:border-emerald-500 hover:bg-emerald-50 dark:hover:bg-emerald-900/30'
+                              : 'border-gray-200 dark:border-slate-600 bg-gray-50 dark:bg-slate-700 cursor-not-allowed opacity-60'
                         }`}
                       >
                         {task.status === 'Completed' && (
@@ -239,11 +239,11 @@ export default function TasksPage() {
                       <div className="flex-1 min-w-0">
                         <div className="flex items-start justify-between gap-4">
                           <div>
-                            <h3 className={`font-medium ${task.status === 'Completed' ? 'text-gray-400 line-through' : 'text-gray-900'}`}>
+                            <h3 className={`font-medium ${task.status === 'Completed' ? 'text-gray-400 dark:text-slate-500 line-through' : 'text-gray-900 dark:text-slate-100'}`}>
                               {task.title}
                             </h3>
                             {task.description && (
-                              <p className="text-sm text-gray-500 mt-0.5 line-clamp-1">{task.description}</p>
+                              <p className="text-sm text-gray-500 dark:text-slate-400 mt-0.5 line-clamp-1">{task.description}</p>
                             )}
                           </div>
 
@@ -268,7 +268,7 @@ export default function TasksPage() {
                           </span>
 
                           {task.dueDate && (
-                            <span className={`text-xs flex items-center gap-1 ${overdue ? 'text-red-600 font-medium' : 'text-gray-500'}`}>
+                            <span className={`text-xs flex items-center gap-1 ${overdue ? 'text-red-600 dark:text-red-400 font-medium' : 'text-gray-500 dark:text-slate-400'}`}>
                               <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                               </svg>
@@ -279,7 +279,7 @@ export default function TasksPage() {
 
                           <Link
                             href={`/meetings/${task.meetingId}`}
-                            className="text-xs text-indigo-600 hover:text-indigo-700"
+                            className="text-xs text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300"
                           >
                             Ver reuniao
                           </Link>

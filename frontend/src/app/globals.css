@@ -30,6 +30,56 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* Dark mode - global */
+html.dark {
+  color-scheme: dark;
+}
+
+html.dark body {
+  background-color: #0f172a;
+  color: #e2e8f0;
+}
+
+.dark .card {
+  @apply bg-slate-800 border-slate-600;
+}
+
+.dark .card .text-gray-900,
+.dark .card h3.text-gray-900 { @apply text-slate-100; }
+.dark .card .text-gray-700 { @apply text-slate-300; }
+.dark .card .text-gray-600 { @apply text-slate-400; }
+.dark .card .text-gray-500 { @apply text-slate-400; }
+.dark .card .text-gray-400 { @apply text-slate-500; }
+.dark .card .bg-gray-50 { @apply bg-slate-700/50; }
+.dark .card .bg-gray-100 { @apply bg-slate-700; }
+.dark .card .divide-gray-100 { @apply divide-slate-700; }
+
+.dark .section-title,
+.dark .page-title {
+  @apply text-slate-100;
+}
+
+.dark .text-muted {
+  @apply text-slate-400;
+}
+
+.dark .stat-value { @apply text-slate-100; }
+.dark .stat-label { @apply text-slate-400; }
+.dark .input-label { @apply text-slate-300; }
+.dark .divider { @apply border-slate-700; }
+.dark .skeleton { @apply bg-slate-600; }
+
+.dark .badge-primary { @apply bg-indigo-900/50 text-indigo-200; }
+.dark .badge-success { @apply bg-emerald-900/50 text-emerald-200; }
+.dark .badge-warning { @apply bg-amber-900/50 text-amber-200; }
+.dark .badge-danger { @apply bg-red-900/50 text-red-200; }
+.dark .badge-neutral { @apply bg-slate-700 text-slate-300; }
+
+.dark .btn-secondary { @apply bg-slate-700 text-slate-200 border-slate-600 hover:bg-slate-600 hover:border-slate-500; }
+.dark .btn-ghost { @apply text-slate-400 hover:bg-slate-700 hover:text-slate-100; }
+.dark .btn-icon { @apply text-slate-400 hover:text-slate-200 hover:bg-slate-700; }
+.dark .btn-icon-danger { @apply hover:text-red-300 hover:bg-red-900/30; }
+
 @layer base {
   input[type="text"],
   input[type="email"],
@@ -42,7 +92,9 @@ body {
   select {
     @apply w-full rounded-lg border border-gray-200 bg-white px-4 py-2.5 text-sm text-gray-900 
            placeholder-gray-400 transition-all duration-200 
-           focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 focus:outline-none;
+           focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 focus:outline-none
+           dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100 dark:placeholder-slate-500
+           dark:focus:border-indigo-400 dark:focus:ring-indigo-500/30;
   }
 
   button {
@@ -203,6 +255,13 @@ body {
 
 ::-webkit-scrollbar-thumb:hover {
   background: #9ca3af;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: #475569;
+}
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: #64748b;
 }
 
 /* Animations */
