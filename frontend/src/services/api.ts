@@ -249,6 +249,19 @@ export const taskService = {
   },
 };
 
+// Admin dashboard service (Site Admin only)
+export const adminDashboardService = {
+  async getOrganizationsSummary(): Promise<AdminOrganizationSummary[]> {
+    const response = await api.get<AdminOrganizationSummary[]>('/api/admin/organizations/summary');
+    return response.data;
+  },
+
+  async getTasksSummary(): Promise<AdminTaskSummary[]> {
+    const response = await api.get<AdminTaskSummary[]>('/api/admin/tasks/summary');
+    return response.data;
+  },
+};
+
 // Decisions service
 export const decisionService = {
   async getAll(meetingId: string): Promise<Decision[]> {
@@ -382,6 +395,25 @@ export interface CreateTaskDto {
   dueDate?: string;
 }
 
+// Admin dashboard types
+export interface AdminOrganizationSummary {
+  organizationId: string;
+  name: string;
+  totalUsers: number;
+  totalMeetings: number;
+  totalTasks: number;
+  completedTasks: number;
+  taskCompletionRate: number;
+}
+
+export interface AdminTaskSummary {
+  organizationId: string;
+  organizationName: string;
+  totalTasks: number;
+  completedTasks: number;
+  taskCompletionRate: number;
+}
+
 export interface Decision {
   id: string;
   meetingId: string;
@@ -441,6 +473,10 @@ export interface UserInfo {
   canInviteMembers?: boolean;
   canManageRoles?: boolean;
   canRemoveMembers?: boolean;
+  canManageTasks?: boolean;
+  canAssignTasks?: boolean;
+  canCompleteAnyTask?: boolean;
+  canViewAllTasks?: boolean;
 }
 
 export interface MyOrganizationItem {

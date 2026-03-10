@@ -174,6 +174,29 @@ ModelState is valid. Proceeding to create meeting...
 ArgumentException: Data e hora devem ser no futuro
 ```
 
+---
+
+## Usuário Site Admin default
+
+- Na primeira vez que o backend sobe em desenvolvimento, o sistema garante a existência de um **usuário administrador da plataforma (Site Admin)**.
+- Esse usuário é criado com:
+  - **Email**: `admin@smm.local`
+  - **Nome**: `Admin`
+  - `IsSiteAdmin = true`
+  - Uma organização global chamada **\"SmartMeeting Global\"**, onde ele entra como **Owner**.
+- A senha inicial é definida assim:
+  - Se existir `Seed:Admin:Password` na configuração (`appsettings.Development.json` ou variáveis de ambiente), esse valor é usado como senha.
+  - Caso contrário, o backend gera uma **senha forte aleatória** e registra nos logs.
+- Para descobrir a senha gerada:
+  - Veja os logs do backend logo após o start:
+    - Em desenvolvimento local: ao rodar `dotnet run`, procure por uma linha semelhante a  
+      `Default SiteAdmin credentials - Email: admin@smm.local Password: <SENHA_AQUI>`
+    - Em Docker: use algo como  
+      `docker compose logs backend | findstr "Default SiteAdmin credentials"` (ou equivalente no seu shell).
+- **Recomendado**:
+  - Usar esse login apenas para configuração inicial.
+  - Alterar a senha depois usando o fluxo de mudança de senha / esqueci minha senha.
+
 ## 🧪 Teste Garantido de Funcionar
 
 Use **EXATAMENTE** estes valores:

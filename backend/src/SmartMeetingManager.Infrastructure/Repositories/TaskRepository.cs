@@ -41,6 +41,25 @@ public class TaskRepository : ITaskRepository
             .ToListAsync(cancellationToken);
     }
 
+    public async Task<IEnumerable<TaskEntity>> GetByOrganizationIdAsync(Guid organizationId, Guid? assignedToId, Domain.Entities.TaskStatus? status, CancellationToken cancellationToken = default)
+    {
+        var query = _context.Tasks
+            .Include(t => t.Meeting)
+            .Where(t => t.Meeting != null && t.Meeting.OrganizationId == organizationId);
+        if (assignedToId.HasValue)
+            query = query.Where(t => t.AssignedToId == assignedToId.Value);
+        if (status.HasValue)
+            query = query.Where(t => t.Status == status.Value);
+        return await query.ToListAsync(cancellationToken);
+    }
+
+    public async Task<TaskEntity?> GetByIdWithMeetingAsync(Guid id, CancellationToken cancellationToken = default)
+    {
+        return await _context.Tasks
+            .Include(t => t.Meeting)
+            .FirstOrDefaultAsync(t => t.Id == id, cancellationToken);
+    }
+
     public async Task<IEnumerable<TaskEntity>> GetAllAsync(CancellationToken cancellationToken = default)
     {
         return await _context.Tasks.ToListAsync(cancellationToken);

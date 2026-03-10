@@ -10,6 +10,10 @@ public static class OrganizationPermissions
     public const string RemoveMembers = "RemoveMembers";
     public const string ManageRoles = "ManageRoles";
     public const string EditOrganization = "EditOrganization";
+    public const string ManageTasks = "ManageTasks";
+    public const string AssignTasks = "AssignTasks";
+    public const string CompleteAnyTask = "CompleteAnyTask";
+    public const string ViewAllTasks = "ViewAllTasks";
 
     public static readonly IReadOnlyList<string> All = new[]
     {
@@ -17,7 +21,11 @@ public static class OrganizationPermissions
         CancelInvites,
         RemoveMembers,
         ManageRoles,
-        EditOrganization
+        EditOrganization,
+        ManageTasks,
+        AssignTasks,
+        CompleteAnyTask,
+        ViewAllTasks
     };
 
     public static bool IsValid(string permission)

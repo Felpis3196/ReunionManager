@@ -43,7 +43,13 @@ public class OrganizationPermissionService : IOrganizationPermissionService
         if (membership.Role == OrganizationRole.Admin)
         {
             return permission == OrganizationPermissions.InviteMembers ||
-                   permission == OrganizationPermissions.CancelInvites;
+                   permission == OrganizationPermissions.CancelInvites ||
+                   permission == OrganizationPermissions.RemoveMembers ||
+                   permission == OrganizationPermissions.ManageRoles ||
+                   permission == OrganizationPermissions.ManageTasks ||
+                   permission == OrganizationPermissions.AssignTasks ||
+                   permission == OrganizationPermissions.CompleteAnyTask ||
+                   permission == OrganizationPermissions.ViewAllTasks;
         }
 
         return false;

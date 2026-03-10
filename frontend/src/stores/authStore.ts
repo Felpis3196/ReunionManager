@@ -16,6 +16,10 @@ function normalizeUser(u: any): UserInfo {
     canInviteMembers: u?.canInviteMembers ?? u?.CanInviteMembers ?? false,
     canManageRoles: u?.canManageRoles ?? u?.CanManageRoles ?? false,
     canRemoveMembers: u?.canRemoveMembers ?? u?.CanRemoveMembers ?? false,
+    canManageTasks: u?.canManageTasks ?? u?.CanManageTasks ?? false,
+    canAssignTasks: u?.canAssignTasks ?? u?.CanAssignTasks ?? false,
+    canCompleteAnyTask: u?.canCompleteAnyTask ?? u?.CanCompleteAnyTask ?? false,
+    canViewAllTasks: u?.canViewAllTasks ?? u?.CanViewAllTasks ?? false,
   };
 }
 

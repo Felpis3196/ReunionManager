@@ -50,6 +50,7 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ConnectionStrings__DefaultConnection=Host=postgres;Database=SmartMeetingManager;Username=postgres;Password=postgres
+      - Seed__Admin__Password=Admin#123
       - ASPNETCORE_URLS=http://+:8080
     ports:
       - "5000:8080"

@@ -1,4 +1,6 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using SmartMeetingManager.Domain.Entities;
 using Task = System.Threading.Tasks.Task;
 
@@ -47,7 +49,7 @@ public static class SeedData
             Name = "Admin User",
             PasswordHash = passwordHash,
             IsActive = true,
-            IsSiteAdmin = true,
+            IsSiteAdmin = false, // Site Admin é criado por EnsureSiteAdminAsync (admin@smm.local)
             EmailConfirmed = true,
             CreatedAt = DateTime.UtcNow
         };
@@ -98,5 +100,134 @@ public static class SeedData
         await context.Projects.AddAsync(project);
 
         await context.SaveChangesAsync();
+    }
+
+    /// <summary>
+    /// Garante a existencia de um usuario Site Admin default e, opcionalmente, de uma organizacao global.
+    /// Idempotente: so cria quando ainda nao existe nenhum SiteAdmin.
+    /// </summary>
+    public static async Task EnsureSiteAdminAsync(
+        ApplicationDbContext context,
+        ILogger logger,
+        IConfiguration configuration,
+        CancellationToken cancellationToken = default)
+    {
+        const string defaultAdminEmail = "admin@smm.local";
+        const string defaultOrgName = "SmartMeeting Global";
+        const string defaultPassword = "Admin#123";
+
+        // Se ja existe qualquer SiteAdmin, nao cria outro por padrao
+        var anySiteAdmin = await context.Users.AnyAsync(u => u.IsSiteAdmin, cancellationToken);
+        if (anySiteAdmin)
+        {
+            logger.LogInformation("At least one SiteAdmin user already exists. Skipping default admin seed.");
+            return;
+        }
+
+        logger.LogInformation("No SiteAdmin found. Creating default SiteAdmin user {Email}.", defaultAdminEmail);
+
+        // Escolher senha: configuracao override ou senha random
+        var configuredPassword = defaultPassword;
+        string generatedPassword;
+        if (!string.IsNullOrWhiteSpace(configuredPassword))
+        {
+            generatedPassword = configuredPassword;
+            logger.LogInformation("Using Seed:Admin:Password from configuration for default admin user.");
+        }
+        else
+        {
+            generatedPassword = GenerateStrongPassword();
+            logger.LogInformation("Generated random password for default admin user.");
+        }
+
+        var passwordHash = BCrypt.Net.BCrypt.HashPassword(generatedPassword, workFactor: 12);
+
+        var existingAdminUser = await context.Users
+            .FirstOrDefaultAsync(u => u.Email.ToLower() == defaultAdminEmail.ToLower(), cancellationToken);
+
+        if (existingAdminUser == null)
+        {
+            existingAdminUser = new User
+            {
+                Id = Guid.NewGuid(),
+                Email = defaultAdminEmail,
+                Name = "Admin",
+                PasswordHash = passwordHash,
+                IsActive = true,
+                IsSiteAdmin = true,
+                EmailConfirmed = true,
+                CreatedAt = DateTime.UtcNow
+            };
+            await context.Users.AddAsync(existingAdminUser, cancellationToken);
+            logger.LogInformation("Default SiteAdmin user {Email} created.", defaultAdminEmail);
+        }
+        else
+        {
+            existingAdminUser.IsSiteAdmin = true;
+            existingAdminUser.IsActive = true;
+            if (string.IsNullOrEmpty(existingAdminUser.PasswordHash))
+            {
+                existingAdminUser.PasswordHash = passwordHash;
+            }
+            logger.LogInformation("Existing user {Email} promoted to SiteAdmin.", defaultAdminEmail);
+        }
+
+        // Criar organizacao global se necessario
+        var globalOrg = await context.Organizations
+            .FirstOrDefaultAsync(o => o.Name == defaultOrgName, cancellationToken);
+
+        if (globalOrg == null)
+        {
+            globalOrg = new Organization
+            {
+                Id = Guid.NewGuid(),
+                Name = defaultOrgName,
+                CreatedAt = DateTime.UtcNow
+            };
+            await context.Organizations.AddAsync(globalOrg, cancellationToken);
+            logger.LogInformation("Global organization {Name} created.", defaultOrgName);
+        }
+
+        // Garantir membership do admin como Owner nessa organizacao
+        var hasMembership = await context.OrganizationMembers.AnyAsync(
+            m => m.OrganizationId == globalOrg.Id && m.UserId == existingAdminUser.Id,
+            cancellationToken);
+
+        if (!hasMembership)
+        {
+            var membership = new OrganizationMember
+            {
+                Id = Guid.NewGuid(),
+                OrganizationId = globalOrg.Id,
+                UserId = existingAdminUser.Id,
+                Role = OrganizationRole.Owner,
+                JoinedAt = DateTime.UtcNow,
+                IsActive = true
+            };
+            await context.OrganizationMembers.AddAsync(membership, cancellationToken);
+            logger.LogInformation("Default SiteAdmin user added as Owner of organization {Name}.", defaultOrgName);
+        }
+
+        await context.SaveChangesAsync(cancellationToken);
+
+        // Logar a senha apenas uma vez (cuidado em producao)
+        logger.LogWarning(
+            "Default SiteAdmin credentials - Email: {Email} Password: {Password}. " +
+            "Change this password after first login.",
+            defaultAdminEmail, defaultPassword);
+    }
+
+    private static string GenerateStrongPassword(int length = 16)
+    {
+        const string chars = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz0123456789!@#$%^&*()-_=+";
+        var bytes = new byte[length];
+        using var rng = System.Security.Cryptography.RandomNumberGenerator.Create();
+        rng.GetBytes(bytes);
+        var resultChars = new char[length];
+        for (int i = 0; i < length; i++)
+        {
+            resultChars[i] = chars[bytes[i] % chars.Length];
+        }
+        return new string(resultChars);
     }
 }

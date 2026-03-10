@@ -108,6 +108,10 @@ public class UserInfoDto
     public bool CanInviteMembers { get; set; }
     public bool CanManageRoles { get; set; }
     public bool CanRemoveMembers { get; set; }
+    public bool CanManageTasks { get; set; }
+    public bool CanAssignTasks { get; set; }
+    public bool CanCompleteAnyTask { get; set; }
+    public bool CanViewAllTasks { get; set; }
 }
 
 public class UpdateProfileDto

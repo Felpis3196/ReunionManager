@@ -4,6 +4,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import Layout from '@/components/Layout/Layout';
 import Link from 'next/link';
 import { taskService, Task } from '@/services/api';
+import { useAuthStore } from '@/stores/authStore';
 
 const statusConfig: Record<string, { label: string; color: string; bg: string }> = {
   Pending: { label: 'Pendente', color: 'text-amber-700', bg: 'bg-amber-50' },
@@ -20,17 +21,20 @@ const priorityConfig: Record<string, { label: string; color: string; dot: string
 };
 
 export default function TasksPage() {
+  const user = useAuthStore((s) => s.user);
   const [tasks, setTasks] = useState<Task[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [filter, setFilter] = useState<'all' | 'pending' | 'completed'>('pending');
+  const [scope, setScope] = useState<'mine' | 'all'>('mine');
 
   const loadTasks = useCallback(async () => {
     try {
       setIsLoading(true);
       setError(null);
       const statusFilter = filter === 'pending' ? 'Pending' : filter === 'completed' ? 'Completed' : undefined;
-      const data = await taskService.getAll({ status: statusFilter });
+      const assignedToId = scope === 'mine' && user?.id ? user.id : undefined;
+      const data = await taskService.getAll({ status: statusFilter, assignedToId });
       setTasks(data);
     } catch (err: any) {
       console.error('Error loading tasks:', err);
@@ -38,7 +42,7 @@ export default function TasksPage() {
     } finally {
       setIsLoading(false);
     }
-  }, [filter]);
+  }, [filter, scope, user?.id]);
 
   useEffect(() => {
     loadTasks();
@@ -76,6 +80,15 @@ export default function TasksPage() {
     return new Date(task.dueDate) < new Date();
   };
 
+  const canComplete = (task: Task) => {
+    if (task.status === 'Completed' || task.status === 'Cancelled') return false;
+    const userId = user?.id;
+    if (!userId) return false;
+    return task.assignedToId === userId || user?.canCompleteAnyTask === true || user?.canManageTasks === true;
+  };
+
+  const canDelete = user?.canManageTasks === true;
+
   const filterOptions = [
     { id: 'all', label: 'Todas' },
     { id: 'pending', label: 'Pendentes' },
@@ -89,11 +102,15 @@ export default function TasksPage() {
           {/* Header */}
           <div className="mb-8">
             <h1 className="page-title">Tarefas</h1>
-            <p className="text-muted mt-1">Gerencie as tarefas geradas das reunioes</p>
+            <p className="text-muted mt-1">
+              {user?.isSiteAdmin
+                ? 'Tarefas da organizacao atual. Para visao agregada de todas as organizacoes, use o dashboard de admin.'
+                : 'Gerencie as tarefas da sua organizacao atual, separando entre suas tarefas e as da equipe.'}
+            </p>
           </div>
 
           {/* Filters */}
-          <div className="mb-6 flex items-center gap-2">
+          <div className="mb-6 flex flex-wrap items-center gap-2">
             <div className="flex items-center bg-gray-100 rounded-lg p-1">
               {filterOptions.map((opt) => (
                 <button
@@ -109,6 +126,26 @@ export default function TasksPage() {
                 </button>
               ))}
             </div>
+            {user?.canViewAllTasks && (
+              <div className="flex items-center bg-gray-100 rounded-lg p-1">
+                <button
+                  onClick={() => setScope('mine')}
+                  className={`px-3 py-2 rounded-md text-sm font-medium transition-all ${
+                    scope === 'mine' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600 hover:text-gray-900'
+                  }`}
+                >
+                  Minhas tarefas
+                </button>
+                <button
+                  onClick={() => setScope('all')}
+                  className={`px-3 py-2 rounded-md text-sm font-medium transition-all ${
+                    scope === 'all' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600 hover:text-gray-900'
+                  }`}
+                >
+                  Todas da equipe
+                </button>
+              </div>
+            )}
             <span className="text-sm text-gray-400 ml-auto">{tasks.length} tarefas</span>
           </div>
 
@@ -178,15 +215,17 @@ export default function TasksPage() {
                     className={`p-4 hover:bg-gray-50 transition-colors ${overdue ? 'bg-red-50/50' : ''}`}
                     style={{ animationDelay: `${index * 30}ms` }}
                   >
-                    <div className="flex items-start gap-4">
-                      {/* Checkbox */}
+                    <div className="flex items-start gap-4 group">
+                      {/* Checkbox - only enabled if user can complete this task */}
                       <button
-                        onClick={() => task.status !== 'Completed' && handleComplete(task)}
-                        disabled={task.status === 'Completed'}
+                        onClick={() => canComplete(task) && handleComplete(task)}
+                        disabled={!canComplete(task) || task.status === 'Completed'}
                         className={`mt-0.5 w-5 h-5 rounded border-2 flex items-center justify-center flex-shrink-0 transition-all duration-200 ${
                           task.status === 'Completed'
                             ? 'bg-emerald-500 border-emerald-500'
-                            : 'border-gray-300 hover:border-emerald-500 hover:bg-emerald-50'
+                            : canComplete(task)
+                              ? 'border-gray-300 hover:border-emerald-500 hover:bg-emerald-50'
+                              : 'border-gray-200 bg-gray-50 cursor-not-allowed opacity-60'
                         }`}
                       >
                         {task.status === 'Completed' && (
@@ -208,15 +247,17 @@ export default function TasksPage() {
                             )}
                           </div>
 
-                          {/* Delete Button */}
-                          <button
-                            onClick={() => handleDelete(task)}
-                            className="btn-icon-danger opacity-0 group-hover:opacity-100 transition-opacity"
-                          >
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                            </svg>
-                          </button>
+                          {/* Delete Button - only for users with ManageTasks */}
+                          {canDelete && (
+                            <button
+                              onClick={() => handleDelete(task)}
+                              className="btn-icon-danger opacity-0 group-hover:opacity-100 transition-opacity"
+                            >
+                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                              </svg>
+                            </button>
+                          )}
                         </div>
 
                         {/* Meta */}

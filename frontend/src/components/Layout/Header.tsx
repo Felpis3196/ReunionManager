@@ -18,6 +18,9 @@ export default function Header() {
     { href: '/dashboard', label: 'Dashboard', icon: ChartIcon },
     { href: '/tasks', label: 'Tarefas', icon: TaskIcon },
     { href: '/notifications', label: 'Notificacoes', icon: BellIcon },
+    ...(user?.isSiteAdmin
+      ? [{ href: '/admin', label: 'Admin', icon: ChartIcon }]
+      : []),
     ...(user?.organizationId
       ? [
           { href: '/team', label: 'Equipe', icon: TeamIcon },
@@ -54,23 +57,42 @@ export default function Header() {
 
   if (!isAuthenticated) return null;
 
+  const scopeLabel = user?.isSiteAdmin
+    ? 'Visão global (admin)'
+    : user?.organizationName
+      ? user.organizationName
+      : 'Sem organização';
+
   return (
     <header className="sticky top-0 z-50 glass border-b border-gray-200/50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
-          <Link href="/" className="flex items-center gap-3 group">
-            <div className="w-9 h-9 bg-gradient-to-br from-indigo-600 to-violet-600 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-600/20 group-hover:shadow-indigo-600/30 transition-shadow">
-              <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-              </svg>
-            </div>
-            <div className="hidden sm:block">
-              <span className="text-lg font-bold text-gray-900">Smart Meeting</span>
-              <span className="text-lg font-light text-gray-400 ml-1">Manager</span>
-            </div>
-          </Link>
-          
-          <nav className="flex items-center gap-1">
+        <div className="flex justify-between items-center h-16 min-w-0">
+          <div className="flex items-center gap-4 min-w-0 shrink-0">
+            <Link href="/" className="flex items-center gap-3 group shrink-0">
+              <div className="w-9 h-9 bg-gradient-to-br from-indigo-600 to-violet-600 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-600/20 group-hover:shadow-indigo-600/30 transition-shadow">
+                <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+              </div>
+              <div className="hidden sm:block">
+                <span className="text-lg font-bold text-gray-900">Smart Meeting</span>
+                <span className="text-lg font-light text-gray-400 ml-1">Manager</span>
+              </div>
+            </Link>
+            {user && (
+              <div
+                className="hidden md:flex items-center gap-2 rounded-full bg-gray-100 px-3 py-1.5 max-w-[220px] lg:max-w-[280px] shrink-0"
+                title={user.isSiteAdmin ? 'Visão global do admin' : user.organizationName || 'Sem organização vinculada'}
+              >
+                <span className="inline-flex h-2 w-2 rounded-full bg-emerald-500 shrink-0" />
+                <span className="text-xs font-medium text-gray-700 truncate whitespace-nowrap">
+                  {scopeLabel}
+                </span>
+              </div>
+            )}
+          </div>
+
+          <nav className="flex items-center gap-0.5 overflow-x-auto min-w-0 flex-1 justify-end [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
             {navItems.map((item) => {
               const isActive = pathname === item.href || (item.href !== '/' && pathname?.startsWith(item.href));
               const Icon = item.icon;
@@ -78,14 +100,14 @@ export default function Header() {
                 <Link
                   key={item.href}
                   href={item.href}
-                  className={`relative flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                  className={`relative flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 shrink-0 whitespace-nowrap ${
                     isActive
                       ? 'text-indigo-600'
                       : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100/80'
                   }`}
                 >
-                  <Icon className={`w-5 h-5 ${isActive ? 'text-indigo-600' : ''}`} />
-                  <span className="hidden sm:block">{item.label}</span>
+                  <Icon className={`w-5 h-5 flex-shrink-0 ${isActive ? 'text-indigo-600' : ''}`} />
+                  <span className="hidden sm:inline">{item.label}</span>
                   {isActive && (
                     <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-1 h-1 bg-indigo-600 rounded-full" />
                   )}

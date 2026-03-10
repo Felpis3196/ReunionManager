@@ -162,6 +162,10 @@ public class AuthService : IAuthService
             var canInvite = organization != null && await _permissionService.HasPermissionAsync(user.Id, organization.Id, OrganizationPermissions.InviteMembers);
             var canManageRoles = organization != null && await _permissionService.HasPermissionAsync(user.Id, organization.Id, OrganizationPermissions.ManageRoles);
             var canRemove = organization != null && await _permissionService.HasPermissionAsync(user.Id, organization.Id, OrganizationPermissions.RemoveMembers);
+            var canManageTasks = organization != null && await _permissionService.HasPermissionAsync(user.Id, organization.Id, OrganizationPermissions.ManageTasks);
+            var canAssignTasks = organization != null && await _permissionService.HasPermissionAsync(user.Id, organization.Id, OrganizationPermissions.AssignTasks);
+            var canCompleteAnyTask = organization != null && await _permissionService.HasPermissionAsync(user.Id, organization.Id, OrganizationPermissions.CompleteAnyTask);
+            var canViewAllTasks = organization != null && await _permissionService.HasPermissionAsync(user.Id, organization.Id, OrganizationPermissions.ViewAllTasks);
 
             // Generate tokens
             var accessToken = GenerateJwtToken(user, organization?.Id, roleDisplayName);
@@ -176,7 +180,7 @@ public class AuthService : IAuthService
                 AccessToken = accessToken,
                 RefreshToken = refreshToken.Token,
                 ExpiresAt = DateTime.UtcNow.AddMinutes(GetAccessTokenExpiryMinutes()),
-                User = MapToUserInfo(user, organization, roleDisplayName, canInvite, canManageRoles, canRemove)
+                User = MapToUserInfo(user, organization, roleDisplayName, canInvite, canManageRoles, canRemove, canManageTasks, canAssignTasks, canCompleteAnyTask, canViewAllTasks)
             };
         }
         catch (Exception ex)
@@ -270,6 +274,10 @@ public class AuthService : IAuthService
             var canInvite = orgId != Guid.Empty && await _permissionService.HasPermissionAsync(user.Id, orgId, OrganizationPermissions.InviteMembers);
             var canManageRoles = orgId != Guid.Empty && await _permissionService.HasPermissionAsync(user.Id, orgId, OrganizationPermissions.ManageRoles);
             var canRemove = orgId != Guid.Empty && await _permissionService.HasPermissionAsync(user.Id, orgId, OrganizationPermissions.RemoveMembers);
+            var canManageTasks = orgId != Guid.Empty && await _permissionService.HasPermissionAsync(user.Id, orgId, OrganizationPermissions.ManageTasks);
+            var canAssignTasks = orgId != Guid.Empty && await _permissionService.HasPermissionAsync(user.Id, orgId, OrganizationPermissions.AssignTasks);
+            var canCompleteAnyTask = orgId != Guid.Empty && await _permissionService.HasPermissionAsync(user.Id, orgId, OrganizationPermissions.CompleteAnyTask);
+            var canViewAllTasks = orgId != Guid.Empty && await _permissionService.HasPermissionAsync(user.Id, orgId, OrganizationPermissions.ViewAllTasks);
 
             // Generate tokens
             var accessToken = GenerateJwtToken(user, organization?.Id, roleDisplayName);
@@ -284,7 +292,7 @@ public class AuthService : IAuthService
                 AccessToken = accessToken,
                 RefreshToken = refreshToken.Token,
                 ExpiresAt = DateTime.UtcNow.AddMinutes(GetAccessTokenExpiryMinutes()),
-                User = MapToUserInfo(user, organization, roleDisplayName, canInvite, canManageRoles, canRemove)
+                User = MapToUserInfo(user, organization, roleDisplayName, canInvite, canManageRoles, canRemove, canManageTasks, canAssignTasks, canCompleteAnyTask, canViewAllTasks)
             };
         }
         catch (Exception ex)
@@ -347,6 +355,10 @@ public class AuthService : IAuthService
             var canInvite = orgId != Guid.Empty && await _permissionService.HasPermissionAsync(user.Id, orgId, OrganizationPermissions.InviteMembers);
             var canManageRoles = orgId != Guid.Empty && await _permissionService.HasPermissionAsync(user.Id, orgId, OrganizationPermissions.ManageRoles);
             var canRemove = orgId != Guid.Empty && await _permissionService.HasPermissionAsync(user.Id, orgId, OrganizationPermissions.RemoveMembers);
+            var canManageTasks = orgId != Guid.Empty && await _permissionService.HasPermissionAsync(user.Id, orgId, OrganizationPermissions.ManageTasks);
+            var canAssignTasks = orgId != Guid.Empty && await _permissionService.HasPermissionAsync(user.Id, orgId, OrganizationPermissions.AssignTasks);
+            var canCompleteAnyTask = orgId != Guid.Empty && await _permissionService.HasPermissionAsync(user.Id, orgId, OrganizationPermissions.CompleteAnyTask);
+            var canViewAllTasks = orgId != Guid.Empty && await _permissionService.HasPermissionAsync(user.Id, orgId, OrganizationPermissions.ViewAllTasks);
 
             var newAccessToken = GenerateJwtToken(user, organization?.Id, roleDisplayName);
             var newRefreshToken = await GenerateRefreshTokenAsync(user.Id, ipAddress);
@@ -360,7 +372,7 @@ public class AuthService : IAuthService
                 AccessToken = newAccessToken,
                 RefreshToken = newRefreshToken.Token,
                 ExpiresAt = DateTime.UtcNow.AddMinutes(GetAccessTokenExpiryMinutes()),
-                User = MapToUserInfo(user, organization, roleDisplayName, canInvite, canManageRoles, canRemove)
+                User = MapToUserInfo(user, organization, roleDisplayName, canInvite, canManageRoles, canRemove, canManageTasks, canAssignTasks, canCompleteAnyTask, canViewAllTasks)
             };
         }
         catch (Exception ex)
@@ -470,7 +482,11 @@ public class AuthService : IAuthService
         var canInvite = orgId != Guid.Empty && await _permissionService.HasPermissionAsync(userId, orgId, OrganizationPermissions.InviteMembers);
         var canManageRoles = orgId != Guid.Empty && await _permissionService.HasPermissionAsync(userId, orgId, OrganizationPermissions.ManageRoles);
         var canRemove = orgId != Guid.Empty && await _permissionService.HasPermissionAsync(userId, orgId, OrganizationPermissions.RemoveMembers);
-        return MapToUserInfo(user, membership?.Organization, roleDisplayName, canInvite, canManageRoles, canRemove);
+        var canManageTasks = orgId != Guid.Empty && await _permissionService.HasPermissionAsync(userId, orgId, OrganizationPermissions.ManageTasks);
+        var canAssignTasks = orgId != Guid.Empty && await _permissionService.HasPermissionAsync(userId, orgId, OrganizationPermissions.AssignTasks);
+        var canCompleteAnyTask = orgId != Guid.Empty && await _permissionService.HasPermissionAsync(userId, orgId, OrganizationPermissions.CompleteAnyTask);
+        var canViewAllTasks = orgId != Guid.Empty && await _permissionService.HasPermissionAsync(userId, orgId, OrganizationPermissions.ViewAllTasks);
+        return MapToUserInfo(user, membership?.Organization, roleDisplayName, canInvite, canManageRoles, canRemove, canManageTasks, canAssignTasks, canCompleteAnyTask, canViewAllTasks);
     }
 
     public async Task<UserInfoDto?> UpdateProfileAsync(Guid userId, UpdateProfileDto dto)
@@ -500,7 +516,11 @@ public class AuthService : IAuthService
         var canInvite = orgId != Guid.Empty && await _permissionService.HasPermissionAsync(userId, orgId, OrganizationPermissions.InviteMembers);
         var canManageRoles = orgId != Guid.Empty && await _permissionService.HasPermissionAsync(userId, orgId, OrganizationPermissions.ManageRoles);
         var canRemove = orgId != Guid.Empty && await _permissionService.HasPermissionAsync(userId, orgId, OrganizationPermissions.RemoveMembers);
-        return MapToUserInfo(user, membership?.Organization, roleDisplayName, canInvite, canManageRoles, canRemove);
+        var canManageTasks = orgId != Guid.Empty && await _permissionService.HasPermissionAsync(userId, orgId, OrganizationPermissions.ManageTasks);
+        var canAssignTasks = orgId != Guid.Empty && await _permissionService.HasPermissionAsync(userId, orgId, OrganizationPermissions.AssignTasks);
+        var canCompleteAnyTask = orgId != Guid.Empty && await _permissionService.HasPermissionAsync(userId, orgId, OrganizationPermissions.CompleteAnyTask);
+        var canViewAllTasks = orgId != Guid.Empty && await _permissionService.HasPermissionAsync(userId, orgId, OrganizationPermissions.ViewAllTasks);
+        return MapToUserInfo(user, membership?.Organization, roleDisplayName, canInvite, canManageRoles, canRemove, canManageTasks, canAssignTasks, canCompleteAnyTask, canViewAllTasks);
     }
 
     public async Task<InviteResponseDto?> InviteUserAsync(Guid organizationId, Guid invitedById, InviteUserDto dto)
@@ -822,7 +842,8 @@ public class AuthService : IAuthService
     }
 
     private static UserInfoDto MapToUserInfo(User user, Organization? organization, string roleDisplayName,
-        bool canInviteMembers = false, bool canManageRoles = false, bool canRemoveMembers = false)
+        bool canInviteMembers = false, bool canManageRoles = false, bool canRemoveMembers = false,
+        bool canManageTasks = false, bool canAssignTasks = false, bool canCompleteAnyTask = false, bool canViewAllTasks = false)
     {
         return new UserInfoDto
         {
@@ -837,7 +858,11 @@ public class AuthService : IAuthService
             CreatedAt = user.CreatedAt,
             CanInviteMembers = canInviteMembers,
             CanManageRoles = canManageRoles,
-            CanRemoveMembers = canRemoveMembers
+            CanRemoveMembers = canRemoveMembers,
+            CanManageTasks = canManageTasks,
+            CanAssignTasks = canAssignTasks,
+            CanCompleteAnyTask = canCompleteAnyTask,
+            CanViewAllTasks = canViewAllTasks
         };
     }
 

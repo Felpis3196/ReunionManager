@@ -180,11 +180,17 @@ export default function DashboardPage() {
           {/* Header + scope selector */}
           <div className="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
-              <h1 className="page-title">Dashboard</h1>
+              <h1 className="page-title">
+                {selectedScope === GENERAL_DASHBOARD_VALUE && isSiteAdmin
+                  ? 'Dashboard geral da plataforma'
+                  : 'Dashboard'}
+              </h1>
               <p className="text-muted mt-1">
-                {selectedScope === GENERAL_DASHBOARD_VALUE
-                  ? 'Visao geral da produtividade e reunioes'
-                  : `Organizacao: ${organizations.find((o) => o.id === selectedScope)?.name ?? selectedScope}`}
+                {selectedScope === GENERAL_DASHBOARD_VALUE && isSiteAdmin
+                  ? 'Visao consolidada de reunioes e tarefas de todas as organizacoes.'
+                  : `Organizacao: ${
+                      organizations.find((o) => o.id === selectedScope)?.name ?? selectedScope
+                    } (apenas dados desta organizacao)`}
               </p>
             </div>
             {(isSiteAdmin && organizations.length > 0) || (!isSiteAdmin && organizations.length > 1) ? (

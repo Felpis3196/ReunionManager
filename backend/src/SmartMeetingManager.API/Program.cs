@@ -205,6 +205,7 @@ if (app.Environment.IsDevelopment())
     {
         var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
         var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+        var configuration = scope.ServiceProvider.GetRequiredService<IConfiguration>();
         
         try
         {
@@ -252,10 +253,15 @@ if (app.Environment.IsDevelopment())
                 logger.LogInformation("Database schema created successfully.");
             }
             
-            // Seed data
-            logger.LogInformation("Seeding database...");
+            // Seed data de exemplo
+            logger.LogInformation("Seeding development sample data (if database is empty)...");
             await SmartMeetingManager.Infrastructure.Data.SeedData.SeedAsync(dbContext);
-            logger.LogInformation("Database seeded successfully.");
+            logger.LogInformation("Sample data seed completed.");
+
+            // Garantir existencia de um SiteAdmin default e organizacao global
+            logger.LogInformation("Ensuring default SiteAdmin user and global organization...");
+            await SmartMeetingManager.Infrastructure.Data.SeedData.EnsureSiteAdminAsync(dbContext, logger, configuration);
+            logger.LogInformation("EnsureSiteAdminAsync completed.");
         }
         catch (Exception ex)
         {

@@ -39,7 +39,7 @@ export default function HomePage() {
             <div>
               <h1 className="page-title">Reunioes</h1>
               <p className="mt-1 text-muted">
-                Gerencie suas reunioes e acompanhe o progresso
+                Gerencie as reunioes da sua organizacao atual.
               </p>
             </div>
             <Link href="/meetings/new" className="btn-primary">
